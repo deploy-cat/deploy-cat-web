@@ -1,19 +1,17 @@
 import { Title } from "solid-start";
-import Counter from "~/components/Counter";
+import { A } from "solid-start";
 
-export default function Home() {
-  return (
-    <main>
-      <Title>Hello World</Title>
-      <h1>Hello world!</h1>
-      <Counter />
-      <p>
-        Visit{" "}
-        <a href="https://start.solidjs.com" target="_blank">
-          start.solidjs.com
-        </a>{" "}
-        to learn how to build SolidStart apps.
-      </p>
-    </main>
-  );
-}
+export const Home = () => (
+  <main>
+    <Title>deploy.cat</Title>
+    <section>
+      <h1 class="text-6xl text-sky-400 uppercase">deploy.cat</h1>
+      <p class="text-xl font-light">deploy your apps in just a few minutes</p>
+      <div class="flex justify-center">
+        <A href="/login" class="btn btn-primary">Get Started</A>
+      </div>
+    </section>
+  </main>
+);
+
+export default Home;

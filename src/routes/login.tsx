@@ -1,12 +1,16 @@
-import { Title } from "solid-start";
+import { A, Title } from "solid-start";
 import { signIn } from "@auth/solid-start/client";
 
-export default function Home() {
-  return (
-    <main>
-      <Title>Login</Title>
-      <h1>Login</h1>
-      <button onclick={() => signIn("github")}>GitHub login</button>
-    </main>
-  );
-}
+export const Home = () => (
+  <main>
+    <Title>Login</Title>
+    <section>
+      <h1 class="text-6xl uppercase">Login</h1>
+      <div class="flex justify-center">
+        <button class="btn btn-primary" onClick={() => signIn("github")}>GitHub login</button>
+      </div>
+    </section>
+  </main>
+);
+
+export default Home;
