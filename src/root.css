@@ -28,7 +28,7 @@ p {
 
 
 .btn {
-  @apply text-base font-medium rounded-xl py-3 px-4 block hover:rounded-md ease-out duration-200 hover:drop-shadow-xl;
+  @apply text-base font-medium rounded-xl py-3 px-4 block hover:rounded-lg ease-out duration-200 hover:drop-shadow-xl;
 }
 
 .btn-primary {
