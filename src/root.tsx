@@ -13,6 +13,7 @@ import {
   Title,
 } from "solid-start";
 import Header from "~/components/Header";
+import Footer from "~/components/Footer";
 import "./root.css";
 
 export const Root = () => (
@@ -22,13 +23,16 @@ export const Root = () => (
       <Meta charset="utf-8" />
       <Meta name="viewport" content="width=device-width, initial-scale=1" />
     </Head>
-    <Body>
+    <Body class="flex flex-col justify-between min-h-screen">
       <Suspense>
         <ErrorBoundary>
-          <Header />
-          <Routes>
-            <FileRoutes />
-          </Routes>
+          <div>
+            <Header />
+            <Routes>
+              <FileRoutes />
+            </Routes>
+          </div>
+          <Footer />
         </ErrorBoundary>
       </Suspense>
       <Scripts />

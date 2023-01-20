@@ -6,7 +6,7 @@ export const NotFound = () => (
     <Title>Not Found</Title>
     <HttpStatusCode code={404} />
     <section>
-      <h1 class="text-6xl uppercase">Page Not Found</h1>
+      <h1 class="text-6xl uppercase text-center">Page Not Found</h1>
       <div class="flex justify-center">
         <A href="/login" class="btn btn-primary">Go to Home</A>
       </div>
