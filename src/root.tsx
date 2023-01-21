@@ -14,6 +14,7 @@ import {
 } from "solid-start";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
+import StagingHeader from "./components/StagingHeader";
 import "./root.css";
 
 export const Root = () => (
@@ -27,6 +28,7 @@ export const Root = () => (
       <Suspense>
         <ErrorBoundary>
           <div>
+            <StagingHeader />
             <Header />
             <Routes>
               <FileRoutes />
