@@ -5,7 +5,7 @@ export const Home = () => (
   <main>
     <Title>Login</Title>
     <section>
-      <h1 class="text-6xl uppercase text-center">Login</h1>
+      <h1 class="text-6xl uppercase text-center my-12">Login</h1>
       <div class="flex justify-center">
         <LoginForm />
       </div>

@@ -1,11 +1,24 @@
 import Protected from "~/components/Protected";
+import { Title, Outlet } from "solid-start";
+import SideBar from "~/components/cloud/SideBar";
 
-export const { routeData, Page } = Protected(({ user }) => (
-  <main class="flex flex-col gap-2 items-center">
-    <h1>This is a proteced route</h1>
-    <img src={user.image} alt="`" />
-    <p>{user.email}</p>
-    <p>{user.name}</p>
+const apps = [
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+  { name: "Hello World", host: "helloworld.deploy.cat", image: "traefik/whoami" },
+]
+
+export const { routeData, Page } = Protected(({user}) => (
+  <main>
+    <Title>Cloud</Title>
+    <h1 class="text-3xl uppercase font-light m-4">Cloud</h1>
+    <section class="flex">
+      <SideBar />
+      <Outlet />
+    </section>
   </main>
 ));
 

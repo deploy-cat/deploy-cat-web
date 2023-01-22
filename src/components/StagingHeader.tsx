@@ -1,4 +1,4 @@
-import './StagingHeader.css'
+import "./StagingHeader.css";
 
 export const StagingHeader = () => (
   <input checked id="staging-header" type="checkbox" />

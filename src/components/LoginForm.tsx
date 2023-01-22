@@ -1,8 +1,7 @@
 import { signIn } from "@auth/solid-start/client";
 
 export const LoginForm = () => (
-  <div
-    class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-xl shadow-md sm:p-6 md:p-8 dark:bg-slate-800 dark:border-gray-700">
+  <div class="w-full max-w-sm p-4 card">
     <form class="space-y-6" action="#">
       <h5 class="text-xl font-medium text-gray-900 dark:text-white">
         Sign in to deploy.cat
@@ -80,10 +79,10 @@ export const LoginForm = () => (
         </a>
       </div>
     </form>
-    <hr class="my-6"/>
-      <button class="btn btn-secondary w-full" onClick={() => signIn("github")}>
-        Sign in with GitHub
-      </button>
+    <hr class="my-6" />
+    <button class="btn btn-secondary w-full" onClick={() => signIn("github")}>
+      Sign in with GitHub
+    </button>
   </div>
 );
 
