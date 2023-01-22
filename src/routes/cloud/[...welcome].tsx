@@ -12,4 +12,3 @@ export const Page = () => (
 );
 
 export default Page;
- 
