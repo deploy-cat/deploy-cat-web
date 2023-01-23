@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-cat-web
+  namespace: deploy-cat
+spec:
+  selector:
+    matchLabels:
+      app: deploy-cat-web
+  template:
+    metadata:
+      labels:
+        app: deploy-cat-web
+    spec:
+      containers:
+      - name: deploy-cat-web
+        image: 0xadb/deploy-cat-web
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        ports:
+        - containerPort: 8080
+        env:
+        - name: GITHUB_ID
+          valueFrom:
+            secretKeyRef:
+              name: deploy-cat-web-secrets
+              key: GITHUB_ID
+        - name: GITHUB_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deploy-cat-web-secrets
+              key: GITHUB_SECRET
+        - name: AUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: deploy-cat-web-secrets
+              key: AUTH_SECRET
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deploy-cat-web
+  namespace: deploy-cat
+spec:
+  selector:
+    app: deploy-cat-web
+  ports:
+  - port: 8080
+    targetPort: 8080
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: deploy-cat-web
+  namespace: deploy-cat
+  labels:
+    name: deploy-cat-web
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-issuer
+spec:
+  tls:
+  - secretName: "deploy-cat-wildcard-cert"
+    hosts:
+    - deploy.cat
+  rules:
+  - host: deploy.cat
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: deploy-cat-web
+            port: 
+              number: 8080
