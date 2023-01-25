@@ -8,7 +8,7 @@ export const NotFound = () => (
     <section>
       <h1 class="text-6xl uppercase text-center my-12">Page Not Found</h1>
       <div class="flex justify-center">
-        <A href="/login" class="btn btn-primary">Go to Home</A>
+        <A href="/" class="btn btn-primary">Go to Home</A>
       </div>
     </section>
   </main>

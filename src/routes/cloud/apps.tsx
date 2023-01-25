@@ -46,7 +46,7 @@ export const Page = () => (
         </p>
       </figure>
     ))}
-    <button class="block max-w-sm p-6 m-3 card text-center outline-dashed outline-stone-400 dark:bg-slate-200/10 dark:hover:shadow-2xl transition-all duration-100">
+    <button class="block max-w-sm p-6 m-3 card text-center border-none outline-dashed outline-stone-400 dark:bg-slate-400/10 dark:hover:shadow-2xl transition-all duration-100">
       <span class="text-3xl text-slate-400">+</span>
     </button>
   </section>

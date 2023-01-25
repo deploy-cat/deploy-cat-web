@@ -64,7 +64,7 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-issuer
 spec:
   tls:
-  - secretName: "deploy-cat-wildcard-cert"
+  - secretName: "deploy-cat-cert"
     hosts:
     - deploy.cat
   rules:

@@ -10,9 +10,7 @@ const Protected = (Comp: IProtectedComponent) => {
     createServerData$(
       async (_, event) => {
         const session = await getSession(event.request, authOpts);
-        if (!session || !session.user) {
-          throw redirect("/login");
-        }
+        if (!session?.user) throw redirect("/login");
         return session;
       },
       { key: () => ["auth_user"] },
@@ -23,8 +21,8 @@ const Protected = (Comp: IProtectedComponent) => {
     Page: () => {
       const session = useRouteData<typeof routeData>();
       return (
-        <Show when={session()} keyed>
-          {(sess) => <Comp {...sess} />}
+        <Show when={session()?.user && session()} keyed>
+          {(props) => <Comp { ...props } />}
         </Show>
       );
     },

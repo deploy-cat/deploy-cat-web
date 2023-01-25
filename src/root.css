@@ -39,5 +39,5 @@ p {
 }
 
 .card {
-  @apply bg-white border border-gray-200 rounded-xl shadow-md sm:p-6 md:p-8 dark:bg-slate-800 dark:border-gray-700;
+  @apply bg-white rounded-xl shadow-md sm:p-6 md:p-8 dark:bg-gray-800;
 }
