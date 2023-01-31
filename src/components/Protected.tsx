@@ -22,7 +22,7 @@ const Protected = (Comp: IProtectedComponent) => {
       const session = useRouteData<typeof routeData>();
       return (
         <Show when={session()?.user && session()} keyed>
-          {(props) => <Comp { ...props } />}
+          {(props) => <Comp {...props} />}
         </Show>
       );
     },

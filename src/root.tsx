@@ -14,7 +14,6 @@ import {
 } from "solid-start";
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
-import StagingHeader from "./components/StagingHeader";
 import "./root.css";
 
 export const Root = () => (
@@ -23,12 +22,31 @@ export const Root = () => (
       <Title>deploy.cat</Title>
       <Meta charset="utf-8" />
       <Meta name="viewport" content="width=device-width, initial-scale=1" />
+
+      <Meta
+        name="description"
+        content="deploy your app in just a few minutes"
+      />
+      <Meta
+        name="keywords"
+        content="deploy.cat, DeployCat, deploy, hosting, docker, devops, open source, FOSS"
+      />
+      <Meta name="robots" content="index, follow" />
+      <Meta name="theme-color" content="#111827" />
+      <Meta name="apple-mobile-web-app-capable" content="yes" />
+      <Meta name="apple-mobile-web-app-status-bar-style" content="black" />
+      <Meta name="author" content="Alban David Becker" />
+      <Meta name="publisher" content="Alban David Becker" />
+      <Meta name="copyright" content="Alban David Becker" />
+      <Meta name="page-type" content="Private Homepage" />
     </Head>
     <Body class="flex flex-col justify-between min-h-screen">
       <Suspense>
         <ErrorBoundary>
           <div>
-            <StagingHeader />
+            <div class="bg-red-600 text-center p-1">
+              ! currently in active development !
+            </div>
             <Header />
             <Routes>
               <FileRoutes />

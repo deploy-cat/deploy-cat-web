@@ -4,6 +4,7 @@ metadata:
   name: deploy-cat-web
   namespace: deploy-cat
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: deploy-cat-web
@@ -14,12 +15,12 @@ spec:
     spec:
       containers:
       - name: deploy-cat-web
-        image: 0xadb/deploy-cat-web
+        image: 0xadb/deploy-cat-web:v0.1.0
         imagePullPolicy: Always
         resources:
           limits:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "50Mi"
+            cpu: "50m"
         ports:
         - containerPort: 8080
         env:

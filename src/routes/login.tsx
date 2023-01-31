@@ -17,7 +17,7 @@ export const Home = () => {
         <div class="flex justify-center">
           <Show
             when={session()?.user}
-            fallback={LoginForm}  
+            fallback={LoginForm}
           >
             <figure class="card flex flex-col items-center">
               <Show
@@ -31,7 +31,9 @@ export const Home = () => {
               <button
                 class="btn btn-primary"
                 onClick={() => signOut()}
-              >Logout</button>
+              >
+                Logout
+              </button>
             </figure>
           </Show>
         </div>
