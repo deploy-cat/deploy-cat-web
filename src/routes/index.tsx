@@ -1,23 +1,41 @@
-import { A, Title } from "solid-start";
+import { A, Title, useRouteData } from "solid-start";
+import { createServerData$, redirect } from "solid-start/server";
+import { Show } from "solid-js";
+import LoginForm from "~/components/LoginForm";
+import { useSession } from "~/composables/solidauth";
+import { getSession } from "@auth/solid-start";
+import { authOpts } from "./api/auth/[...solidauth]";
 
-export const Home = () => (
-  <main>
-    <Title>deploy.cat</Title>
-    <section>
-      <div class="flex justify-center">
-        <img src="/deploy-cat.webp" alt="logo" class="rounded-xl w-40" />
+export const routeData = () =>
+  createServerData$(
+    async (_, event) => {
+      const session = await getSession(event.request, authOpts);
+      console.log(session);
+      throw redirect("/login");
+      return session;
+    },
+    { key: () => ["auth_user"] },
+  );
+
+export const Home = () => {
+  const session = useRouteData<typeof useSession>();
+
+  return (
+    <main class="m-0">
+      <Title>Login</Title>
+      <div class="flex h-screen">
+        <section class="grow w-2/5">
+          <h1 class="text-6xl uppercase text-center my-12">Login</h1>
+          <div class="flex justify-center">
+            <LoginForm />
+          </div>
+        </section>
+        <section class="grow w-3/5 m-0 xl:flex hidden justify-center items-center bg-slate-700">
+          <img src="/deploy-cat.webp" class="w-48 h-48 rounded" alt="" />
+        </section>
       </div>
-      <h1 class="text-6xl text-sky-400 uppercase text-center my-12">
-        deploy.cat
-      </h1>
-      <p class="text-xl font-light text-center">
-        deploy your apps in just a few minutes
-      </p>
-      <div class="flex justify-center">
-        <A href="/login" class="btn btn-primary">Get Started</A>
-      </div>
-    </section>
-  </main>
-);
+    </main>
+  );
+};
 
 export default Home;

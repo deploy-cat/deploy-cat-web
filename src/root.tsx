@@ -43,15 +43,9 @@ export const Root = () => (
     <Body class="flex flex-col justify-between min-h-screen">
       <Suspense>
         <ErrorBoundary>
-          <div>
-            <div class="bg-red-600 text-center p-1">
-              ! currently in active development !
-            </div>
-            <Header />
-            <Routes>
-              <FileRoutes />
-            </Routes>
-          </div>
+          <Routes>
+            <FileRoutes />
+          </Routes>
           <Footer />
         </ErrorBoundary>
       </Suspense>

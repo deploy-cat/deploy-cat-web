@@ -5,7 +5,7 @@ import {
   QuestionMarkCircleIcon,
   Squares2X2Icon,
 } from "@deploy-cat/heroicons-solid/24/solid/esm";
-import { A } from "@solidjs/router";
+import { A } from "solid-start";
 
 export const SideBar = () => (
   <aside class="w-64 m-3" aria-label="Sidebar">
