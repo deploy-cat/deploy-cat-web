@@ -15,6 +15,7 @@ import {
 import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import "./root.css";
+import { SessionProvider } from "@solid-auth/base/client";
 
 export const Root = () => (
   <Html lang="en">
@@ -41,15 +42,17 @@ export const Root = () => (
       <Meta name="page-type" content="Private Homepage" />
     </Head>
     <Body class="flex flex-col justify-between min-h-screen">
-      <Suspense>
-        <ErrorBoundary>
-          <Routes>
-            <FileRoutes />
-          </Routes>
-          <Footer />
-        </ErrorBoundary>
-      </Suspense>
-      <Scripts />
+      <SessionProvider>
+        <Suspense>
+          <ErrorBoundary>
+            <Routes>
+              <FileRoutes />
+            </Routes>
+            <Footer />
+          </ErrorBoundary>
+        </Suspense>
+        <Scripts />
+      </SessionProvider>
     </Body>
   </Html>
 );

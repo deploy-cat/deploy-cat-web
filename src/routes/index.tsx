@@ -3,14 +3,13 @@ import { createServerData$, redirect } from "solid-start/server";
 import { Show } from "solid-js";
 import LoginForm from "~/components/LoginForm";
 import { useSession } from "~/composables/solidauth";
-import { getSession } from "@auth/solid-start";
-import { authOpts } from "./api/auth/[...solidauth]";
+import { getSession } from "@solid-auth/base";
+import { authOptions } from "../server/auth";
 
 export const routeData = () =>
   createServerData$(
     async (_, event) => {
-      const session = await getSession(event.request, authOpts);
-      console.log(session);
+      const session = await getSession(event.request, authOptions);
       throw redirect("/login");
       return session;
     },

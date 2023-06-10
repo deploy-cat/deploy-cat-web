@@ -1,9 +1,9 @@
-import { getSession } from "@auth/solid-start";
+import { getSession } from "@solid-auth/base";
 import { createServerData$ } from "solid-start/server";
-import { authOpts } from "~/routes/api/auth/[...solidauth]";
+import { authOptions } from "~/server/auth";
 
 export const useSession = () =>
   createServerData$(
-    async (_, session) => await getSession(session.request, authOpts),
+    async (_, session) => await getSession(session.request, authOptions),
     { key: () => ["auth_user"] },
   );

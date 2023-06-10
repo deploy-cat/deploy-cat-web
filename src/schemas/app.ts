@@ -1,30 +1,17 @@
-import mongoose, { model } from "mongoose";
-const { Schema } = mongoose;
+import m from "mongoose";
+import { z } from "zod";
+import { toMongooseSchema } from "mongoose-zod";
 
-const appSchema = new Schema({
-  name: String,
-  image: String,
-  host: String,
-  user: String,
-  port: Number,
-  status: String,
-}, {
-  query: {
-    byImage(image) {
-      return this.where({ image });
-    },
-  },
+const appZodSchema = z.object({
+  name: z.string(),
+  image: z.string(),
+  host: z.string(),
+  user: z.string(),
+  port: z.number(),
 });
 
-const userSchema = new Schema({
-  name: String,
-  role: String,
-}, {
-  query: {
-    byImage(image) {
-      return this.where({ image });
-    },
-  },
-});
+const AppSchema = toMongooseSchema(appZodSchema, {});
 
-export const AppStore = model('App', appSchema);
+const App = m.model("App", AppSchema);
+
+const app = new App().toJSON();

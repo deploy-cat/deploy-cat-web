@@ -1,15 +1,15 @@
 import type { Session } from "@auth/core";
-import { getSession } from "@auth/solid-start";
+import { getSession } from "@solid-auth/base";
 import { Component, Show } from "solid-js";
 import { useRouteData } from "solid-start";
 import { createServerData$, redirect } from "solid-start/server";
-import { authOpts } from "~/routes/api/auth/[...solidauth]";
+import { authOptions } from "~/server/auth";
 
 const Protected = (Comp: IProtectedComponent) => {
   const routeData = () =>
     createServerData$(
       async (_, event) => {
-        const session = await getSession(event.request, authOpts);
+        const session = await getSession(event.request, authOptions);
         if (!session?.user) throw redirect("/login");
         return session;
       },

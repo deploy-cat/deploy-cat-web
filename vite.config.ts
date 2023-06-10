@@ -1,18 +1,12 @@
 import solid from "solid-start/vite";
 import { defineConfig, PluginOption } from "vite";
-import deno from "solid-start-deno";
+import node from "solid-start-node";
 
 export default defineConfig({
   plugins: [
     solid({
       ssr: true,
-      adapter: deno(),
+      adapter: node(),
     }),
-    /* {
-      name: 'postBuildHooks',
-      transform: (ctx) => {
-        return ctx.replaceAll(/process\.env/gi, "Deno.env");
-      }
-    } as PluginOption, */
   ],
 });

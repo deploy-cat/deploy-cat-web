@@ -1,16 +1,10 @@
 FROM node:alpine as builder
 
+EXPOSE 3000
+WORKDIR /app
+
 ADD . .
 
 RUN npm ci && npm run build
 
-
-FROM denoland/deno:alpine
-
-EXPOSE 8080
-WORKDIR /app
-
-COPY --from=builder ./dist .
-RUN deno cache server.js
-
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "--allow-env", "server.js"]
+CMD ["npm", "run", "start"]

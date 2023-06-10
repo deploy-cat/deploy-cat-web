@@ -2,7 +2,7 @@ import { A, Title, useRouteData } from "solid-start";
 import { Show } from "solid-js";
 import LoginForm from "~/components/LoginForm";
 import { useSession } from "~/composables/solidauth";
-import { signOut } from "@auth/solid-start/client";
+import { signOut } from "@solid-auth/base/client";
 
 export const routeData = useSession;
 

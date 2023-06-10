@@ -1,4 +1,4 @@
-import { signIn } from "@auth/solid-start/client";
+import { signIn } from "@solid-auth/base/client";
 
 export const LoginForm = () => (
   <div class="w-full max-w-sm p-4 card">
@@ -80,7 +80,10 @@ export const LoginForm = () => (
       </div>
     </form>
     <hr class="my-6" />
-    <button class="btn btn-secondary w-full" onClick={() => signIn("github")}>
+    <button
+      class="btn btn-secondary w-full"
+      onClick={() => signIn("github", { redirectTo: "/cloud" })}
+    >
       Sign in with GitHub
     </button>
   </div>
