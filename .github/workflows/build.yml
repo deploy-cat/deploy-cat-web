@@ -33,6 +33,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          file: docker/frontend/Dockerfile
+          file: Dockerfile
           push: true
           tags: "ghcr.io/${{ github.repository }}:latest"
