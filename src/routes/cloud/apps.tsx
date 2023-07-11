@@ -1,60 +1,58 @@
-import { For } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { createServerData$ } from "solid-start/server";
-import { useRouteData } from "solid-start";
+import { refetchRouteData, useRouteData } from "solid-start";
 import { getSession } from "@solid-auth/base";
 import { authOptions } from "../../server/auth";
 import { k8sCustomObjects } from "../../k8s";
+import { Service } from "~/components/cloud/service/Service";
+import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
+import { setModalStore } from "~/root";
 
 export const routeData = () =>
   createServerData$(
     async (_, event) => {
       const session = await getSession(event.request, authOptions);
-      const { body } = await k8sCustomObjects.listNamespacedCustomObject(
-        "serving.knative.dev",
-        "v1",
-        session.user.name,
-        "services",
-      );
-      return {
-        session,
-        services: body?.items,
-      };
+      if (session?.user?.name) {
+        const { body } = await k8sCustomObjects.listNamespacedCustomObject(
+          "serving.knative.dev",
+          "v1",
+          session.user.name,
+          "services",
+        );
+        return {
+          services: body?.items,
+        };
+      }
     },
   );
 
 export const Page = () => {
   const data = useRouteData();
+  const [showCreateService, setShowCreateService] = createSignal(false);
 
   return (
-    <section class="grid md:grid-cols-3 w-full m-0">
-      <For each={data()?.services}>
-        {(service) => (
-          <figure class="card basis-64 grow p-6 m-3 dark:hover:shadow-2xl transition-all duration-100 cursor-pointer">
-            <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-              {service.metadata.name}
-            </h2>
-            <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
-              <For each={service.spec.template.spec.containers}>
-                {(container) => <span>{container.image}</span>}
-              </For>
-            </p>
-            <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
-              <a
-                class="text-sky-400"
-                href={service.status.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {service.status.url}
-              </a>
-            </p>
-          </figure>
-        )}
-      </For>
-      <button class="card basis-64 grow block p-6 m-3 text-center border-none outline-dashed outline-stone-400 dark:bg-slate-400/10 dark:hover:shadow-2xl transition-all duration-100">
-        <span class="text-3xl text-slate-400">+</span>
-      </button>
-    </section>
+    <div class="w-full">
+      {
+        /* <section>
+        <button onClick={refetchRouteData}><ArrowPathIcon class="flex-shrink-0 w-5 h-5 text-gray-500 dark:text-gray-400" /></button>
+      </section> */
+      }
+      <section class="grid md:grid-cols-3 w-full m-0">
+        <For each={data()?.services}>
+          {(service) => <Service service={service} />}
+        </For>
+        <button
+          onClick={() => setShowCreateService(!showCreateService())}
+          // onClick={() => setModalStore({modal: <CreateServiceForm />})}
+          class="card basis-64 grow block p-6 m-3 text-center border-none outline-dashed outline-stone-400 dark:bg-slate-400/10 hover:drop-shadow-md transition-all duration-100"
+        >
+          <span class="text-3xl text-slate-400">+</span>
+        </button>
+      </section>
+      <Show when={showCreateService()}>
+        <CreateServiceForm />
+      </Show>
+    </div>
   );
 };
 

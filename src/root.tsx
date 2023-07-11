@@ -1,5 +1,5 @@
 // @refresh reload
-import { Suspense } from "solid-js";
+import { JSXElement, Show, Suspense } from "solid-js";
 import {
   A,
   Body,
@@ -16,6 +16,11 @@ import Header from "~/components/Header";
 import Footer from "~/components/Footer";
 import "./root.css";
 import { SessionProvider } from "@solid-auth/base/client";
+import { createStore } from "solid-js/store";
+
+export const [modalStore, setModalStore] = createStore({
+  modal: null as null | JSXElement,
+});
 
 export const Root = () => (
   <Html lang="en">
@@ -47,6 +52,7 @@ export const Root = () => (
           <ErrorBoundary>
             <Routes>
               <FileRoutes />
+              <Show when={modalStore.modal}>{modalStore.modal}</Show>
             </Routes>
             <Footer />
           </ErrorBoundary>

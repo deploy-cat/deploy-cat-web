@@ -41,3 +41,10 @@ p {
 .card {
   @apply bg-white rounded-xl shadow-md sm:p-6 md:p-8 dark:bg-gray-800;
 }
+
+.status {
+  @apply bg-red-200 dark:bg-red-900;
+}
+.status.ready {
+  @apply bg-green-200 dark:bg-green-900;
+}
