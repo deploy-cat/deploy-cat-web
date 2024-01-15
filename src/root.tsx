@@ -17,10 +17,7 @@ import Footer from "~/components/Footer";
 import "./root.css";
 import { SessionProvider } from "@solid-auth/base/client";
 import { createStore } from "solid-js/store";
-
-export const [modalStore, setModalStore] = createStore({
-  modal: null as null | JSXElement,
-});
+import { ModalWrapper } from "./components/ModalWrapper";
 
 export const Root = () => (
   <Html lang="en">
@@ -52,8 +49,9 @@ export const Root = () => (
           <ErrorBoundary>
             <Routes>
               <FileRoutes />
-              <Show when={modalStore.modal}>{modalStore.modal}</Show>
             </Routes>
+            {/* <Show when={modalStore.modal}>{modalStore.modal}</Show> */}
+            <ModalWrapper />
             <Footer />
           </ErrorBoundary>
         </Suspense>

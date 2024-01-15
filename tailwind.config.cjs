@@ -4,8 +4,13 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   darkMode: "media",
+  plugins: [require("daisyui")],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ["Montserrat", "sans-serif"],
+    },
   },
-  plugins: [],
+  daisyui: {
+    themes: ["sunset"],
+  },
 };

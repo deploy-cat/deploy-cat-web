@@ -1,5 +1,7 @@
 import { createServerAction$, redirect } from "solid-start/server";
+import { Show } from "solid-js";
 import { k8sCustomObjects } from "~/k8s";
+import { knative } from "~/k8s";
 
 export const CreateServiceForm = () => {
   const [enrolling, { Form }] = createServerAction$(
@@ -10,125 +12,62 @@ export const CreateServiceForm = () => {
         port: Number(form.get("port")) as number,
       };
 
-      const { body } = await k8sCustomObjects.createNamespacedCustomObject(
-        "serving.knative.dev",
-        "v1",
-        "adb-sh",
-        "services",
-        {
-          "apiVersion": "serving.knative.dev/v1",
-          "kind": "Service",
-          "metadata": {
-            "name": service.name,
-            "namespace": "adb-sh",
-          },
-          "spec": {
-            "template": {
-              "metadata": {
-                "annotations": {
-                  //"autoscaling.knative.dev/min-scale": "1",
-                },
-              },
-              "spec": {
-                "containerConcurrency": 0,
-                "containers": [
-                  {
-                    "image": service.image,
-                    "name": "user-container",
-                    "ports": [
-                      {
-                        "containerPort": service.port,
-                        "protocol": "TCP",
-                      },
-                    ],
-                    "readinessProbe": {
-                      "successThreshold": 1,
-                      "tcpSocket": {
-                        "port": 0,
-                      },
-                    },
-                    "resources": {},
-                  },
-                ],
-                "enableServiceLinks": false,
-                "timeoutSeconds": 300,
-              },
-            },
-          },
-        },
-      );
-    },
+      await knative.createService(service);
+    }
   );
 
   return (
-    <figure class="absolute top-8 left-1/2 -translate-x-1/2 w-128 m-3">
-      <div class="overflow-y-auto rounded-xl bg-gray-50 dark:bg-gray-800 drop-shadow-2xl p-6">
-        <h2 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Create Service
-        </h2>
-        <Form>
-          <div class="mb-6">
-            <label
-              for="name"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Name
-            </label>
-            <input
-              type="text"
-              name="name"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              required
-            />
+    <dialog id="create-service-modal" class="modal">
+      <Form class="modal-box">
+        <h3 class="font-bold text-lg">Deploy new App</h3>
+        <label class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">Name</span>
           </div>
-          <div class="mb-6">
-            <label
-              for="image"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Image
-            </label>
-            <input
-              type="text"
-              name="image"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              required
-            />
+          <input
+            type="text"
+            name="name"
+            required
+            placeholder="my-app"
+            class="input input-bordered w-full max-w-xs"
+          />
+        </label>
+        <label class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">Image</span>
           </div>
-          <div class="mb-6">
-            <label
-              for="port"
-              class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Container Port
-            </label>
-            <input
-              type="number"
-              name="port"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-              required
-            />
+          <input
+            type="text"
+            name="image"
+            required
+            placeholder="traefik/whoami"
+            class="input input-bordered w-full max-w-xs"
+          />
+        </label>
+        <label class="form-control w-full max-w-xs">
+          <div class="label">
+            <span class="label-text">Port</span>
           </div>
-          <button type="submit" class="btn btn-primary">Deploy</button>
-        </Form>
-
-        <div class="inline-flex items-center justify-center w-full">
-          <hr class="w-64 h-px my-8 bg-gray-200 border-0 dark:bg-gray-700" />
-          <span class="absolute px-3 font-medium text-gray-900 -translate-x-1/2 bg-white left-1/2 dark:text-white dark:bg-gray-800">
-            or
-          </span>
+          <input
+            type="number"
+            name="port"
+            required
+            placeholder="80"
+            class="input input-bordered w-full max-w-xs"
+          />
+        </label>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn">Close</button>
+          </form>
+          <button type="submit" class="btn btn-primary">
+            <Show when={enrolling.pending}>
+              <span class="loading loading-spinner"></span>
+            </Show>
+            Deploy
+          </button>
         </div>
-        <h3 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
-          Add via cli
-        </h3>
-        <ol class="list-decimal ml-6">
-          <li>
-            <code class="bg-slate-600 px-1 rounded">
-              npx @deploycat/cli service create my-app
-            </code>
-          </li>
-        </ol>
-      </div>
-    </figure>
+      </Form>
+    </dialog>
   );
 };
