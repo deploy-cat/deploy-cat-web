@@ -19,4 +19,5 @@ github.profile = (profile) => {
 export const authOptions: SolidAuthConfig = {
   providers: [github],
   debug: false,
+  trustHost: true,
 };
