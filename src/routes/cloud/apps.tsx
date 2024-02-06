@@ -9,10 +9,10 @@ import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { openModal } from "~/components/ModalWrapper";
 
 export const routeData = () =>
-  createServerData$(async (_, event) => {
-    const session = await getSession(event.request, authOptions);
+  createServerData$(async (_, { request }) => {
+    const session = await getSession(request, authOptions);
     if (session?.user?.name) {
-      return knative.getServices();
+      return knative.getServices(session.user.name);
     }
   });
 
@@ -30,8 +30,13 @@ export const Page = () => {
       <section class="p-2">
         <button
           class="btn btn-primary"
-          // onClick={() => setShowCreateService(!showCreateService())}
-          onClick={() => (document.getElementById("create-service-modal") as HTMLDialogElement).showModal()}
+          onClick={() =>
+            (
+              document.getElementById(
+                "create-service-modal"
+              ) as HTMLDialogElement
+            ).showModal()
+          }
         >
           Deploy App
         </button>

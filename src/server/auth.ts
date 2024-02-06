@@ -9,8 +9,8 @@ const github = GitHubProvider({
 github.profile = (profile) => {
   return {
     id: profile.id.toString(),
-    name: profile.login,
-    // name: `gh-${profile.login}`,
+    // name: profile.login,
+    name: `gh-${profile.login}`,
     email: profile.email,
     image: profile.avatar_url,
   };

@@ -1,8 +1,10 @@
 import { For } from "solid-js";
-import { createServerAction$ } from "solid-start/server";
+import { createServerAction$, createServerData$ } from "solid-start/server";
 import { Status } from "./Status";
 import { knative } from "~/k8s";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
+import { getSession } from "@solid-auth/base";
+import { authOptions } from "~/server/auth";
 
 export const Service = ({ service }) => {
   const [deleting, { Form }] = createServerAction$(
@@ -11,7 +13,10 @@ export const Service = ({ service }) => {
         name: form.get("name") as string,
       };
 
-      knative.deleteService(service.name);
+      const session = await getSession(request, authOptions);
+      if (session?.user?.name) {
+        await knative.deleteService(service.name, session.user.name);
+      }
     }
   );
 

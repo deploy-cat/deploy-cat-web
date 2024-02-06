@@ -4,6 +4,10 @@ type Service = {
   name: string;
   image: string;
   port: number;
+  cpuLimit: string;
+  memoryLimit: string;
+  minScale: number;
+  maxRequests: number;
 };
 
 export class Knative {
@@ -15,36 +19,42 @@ export class Knative {
     this.customObjectsApi = this.kubeconfig.makeApiClient(k8s.CustomObjectsApi);
   }
 
-  async getServices() {
+  async getServices(namespace: string) {
     const { body } = await this.customObjectsApi.listNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
-      "adb-sh",
-      "services",
+      namespace,
+      "services"
     );
     return {
       services: body?.items,
     };
   }
 
-  async createService(service: Service) {
+  async createService(service: Service, namespace: string) {
+    console.log(namespace);
     const { body } = await this.customObjectsApi.createNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
-      "adb-sh",
+      namespace,
       "services",
       {
         apiVersion: "serving.knative.dev/v1",
         kind: "Service",
         metadata: {
           name: service.name,
-          namespace: "adb-sh",
+          namespace: namespace,
         },
         spec: {
           template: {
             metadata: {
               annotations: {
-                //"autoscaling.knative.dev/min-scale": "1",
+                "autoscaling.knative.dev/initial-scale": "1",
+                "autoscaling.knative.dev/min-scale":
+                  service.minScale.toString(),
+                "autoscaling.knative.dev/target":
+                  service.maxRequests.toString(),
+                "autoscaling.knative.dev/metric": "rps",
               },
             },
             spec: {
@@ -62,10 +72,15 @@ export class Knative {
                   readinessProbe: {
                     successThreshold: 1,
                     tcpSocket: {
-                      port: 0,
+                      port: service.port,
                     },
                   },
-                  resources: {},
+                  resources: {
+                    limits: {
+                      cpu: service.cpuLimit,
+                      memory: service.memoryLimit,
+                    },
+                  },
                 },
               ],
               enableServiceLinks: false,
@@ -73,18 +88,18 @@ export class Knative {
             },
           },
         },
-      },
+      }
     );
     return body;
   }
 
-  async deleteService(name: string) {
+  async deleteService(name: string, namespace: string) {
     const { body } = await this.customObjectsApi.deleteNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
-      "adb-sh",
+      namespace,
       "services",
-      name,
+      name
     );
     return body;
   }
