@@ -1,23 +1,8 @@
-import { useSupabase } from "solid-supabase";
 import { useNavigate, useSubmission } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { login, register } from "~/lib";
 
 export const LoginForm = () => {
-  const navigate = useNavigate();
-  const supabase = useSupabase();
-  const signIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-    });
-
-    if (error) {
-      alert(error.message);
-      return;
-    }
-    navigate("/cloud", { replace: true });
-  };
-
   const loginStatus = useSubmission(login);
   const registerStatus = useSubmission(register);
 

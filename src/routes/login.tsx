@@ -1,21 +1,14 @@
-import { A, Title, useRouteData } from "solid-start";
 import { Show } from "solid-js";
 import LoginForm from "~/components/LoginForm";
-import { useSession } from "~/composables/solidauth";
-import { signOut } from "@solid-auth/base/client";
 
-export const routeData = useSession;
-
-export const Home = () => {
-  const session = useRouteData<typeof useSession>();
-
+export default () => {
   return (
     <main>
-      <Title>Login</Title>
+      <title>Login</title>
       <section>
         <h1 class="text-6xl uppercase text-center my-12">Login</h1>
         <div class="flex justify-center">
-          <Show
+          {/* <Show
             when={session()?.user}
             fallback={LoginForm}
           >
@@ -35,11 +28,10 @@ export const Home = () => {
                 Logout
               </button>
             </figure>
-          </Show>
+          </Show> */}
+          <LoginForm />
         </div>
       </section>
     </main>
   );
 };
-
-export default Home;
