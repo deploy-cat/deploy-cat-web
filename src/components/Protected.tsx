@@ -1,44 +1,60 @@
-import type { Session } from "@auth/core";
-import { getSession } from "@solid-auth/base";
 import { Component, Show } from "solid-js";
-import { useRouteData } from "solid-start";
-import { createServerData$, redirect } from "solid-start/server";
-import { authOptions } from "~/server/auth";
+import { useSupabase } from "solid-supabase";
+import { useNavigate } from "@solidjs/router";
+import { createAsync, cache } from "@solidjs/router";
 import { k8sCore } from "~/k8s";
+import { User } from "@supabase/supabase-js";
 
-const Protected = (Comp: IProtectedComponent) => {
-  const routeData = () =>
-    createServerData$(
-      async (_, event) => {
-        const session = await getSession(event.request, authOptions);
-        if (!session?.user?.name) throw redirect("/login");
-        const ns = await k8sCore
-          .readNamespace(session?.user?.name)
-          .catch(() => {
-            k8sCore.createNamespace({
-              metadata: {
-                name: session.user?.name,
-              },
-            });
-          });
-        return session;
-      },
-      { key: () => ["auth_user"] }
-    );
+// const Protected = (Comp: IProtectedComponent) => {
+//   const getSession = cache(async () => {
+//     "use server";
+//     const navigate = useNavigate();
+//     const supabase = useSupabase();
+//     const {
+//       data: { user },
+//     } = await supabase.auth.getUser();
+//     if (!user) {
+//       navigate("/login");
+//       return;
+//     }
+//     return user;
+//   }, "user");
 
-  return {
-    routeData,
-    Page: () => {
-      const session = useRouteData<typeof routeData>();
-      return (
-        <Show when={session()?.user && session()} keyed>
-          {(props) => <Comp {...props} />}
-        </Show>
-      );
-    },
-  };
-};
+//   const route = {
+//     load: () => getSession(),
+//   };
 
-type IProtectedComponent = Component<Session>;
+//   return {
+//     route,
+//     Page: () => {
+//       const session = createAsync(getSession);
+//       return (
+//         <Show when={session()} keyed>
+//           {(props) => <Comp {...props} />}
+//         </Show>
+//       );
+//     },
+//   };
+// };
 
-export default Protected;
+// type IProtectedComponent = Component<User>;
+
+// export default Protected;
+
+// const Protected = () => {
+//   const navigate = useNavigate();
+//   const supabase = useSupabase();
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+//   if (!user) {
+//     navigate("/login");
+//     return;
+//   }
+
+//   return (
+//     <Show when={session()} keyed>
+//       {(props) => <Comp {...props} />}
+//     </Show>
+//   );
+// };

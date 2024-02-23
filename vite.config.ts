@@ -1,15 +1,16 @@
-import solid from "solid-start/vite";
-import { defineConfig, PluginOption } from "vite";
-import node from "solid-start-node";
+import { defineConfig } from "@solidjs/start/config";
 
 export default defineConfig({
-  optimizeDeps: {
-    disabled: true,
-  },
-  plugins: [
-    solid({
-      ssr: true,
-      adapter: node(),
-    }),
-  ],
+  // optimizeDeps: {
+  //   disabled: true,
+  // },
+  // plugins: [
+  //   solid({
+  //     ssr: true,
+  //   }),
+  // ],
+  // server: {
+  //   port: 3001,
+  //   host: "0.0.0.0",
+  // },
 });

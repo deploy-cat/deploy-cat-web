@@ -1,29 +1,30 @@
 import { createSignal, For, Show } from "solid-js";
-import { createServerData$ } from "solid-start/server";
-import { refetchRouteData, useRouteData } from "solid-start";
-import { getSession } from "@solid-auth/base";
-import { authOptions } from "../../server/auth";
 import { knative } from "~/k8s";
 import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
-import { openModal } from "~/components/ModalWrapper";
+import { cache, createAsync, type RouteDefinition } from "@solidjs/router";
+import { getUser } from "~/lib/server";
 
-export const routeData = () =>
-  createServerData$(async (_, { request }) => {
-    const session = await getSession(request, authOptions);
-    if (session?.user?.name) {
-      return knative.getServices(session.user.name);
-    }
-  });
+const getServices = cache(async () => {
+  "use server";
+  const user = await getUser();
+  return await knative.getServices(user.username);
+}, "services");
 
-export const Page = () => {
-  const data = useRouteData();
-  const [showCreateService, setShowCreateService] = createSignal(false);
+export const route = {
+  load: () => {
+    getUser();
+    getServices();
+  },
+} satisfies RouteDefinition;
+
+export default () => {
+  const services = createAsync(() => getServices());
 
   return (
     <div class="w-full">
       <section class="grid 2xl:grid-cols-3 gap-2 w-full p-2">
-        <For each={data()?.services}>
+        <For each={services()?.services}>
           {(service) => <Service service={service} />}
         </For>
       </section>
@@ -45,5 +46,3 @@ export const Page = () => {
     </div>
   );
 };
-
-export default Page;

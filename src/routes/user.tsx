@@ -1,11 +1,22 @@
-import Protected from "~/components/Protected";
+// import Protected from "~/components/Protected";
+import { getUser } from "~/lib";
+import { createAsync, type RouteDefinition } from "@solidjs/router";
 
-export const { routeData, Page } = Protected(({ user }) => (
-  <main class="flex flex-col gap-2 items-center">
-    <img src={user.image} alt="`" />
-    <p>{user.email}</p>
-    <p>{JSON.stringify(user)}</p>
-  </main>
-));
+export const route = {
+  load: () => getUser(),
+} satisfies RouteDefinition;
 
-export default Page;
+export default function Home() {
+  const user = createAsync(() => getUser(), { deferStream: true });
+  return (
+    <main class="w-full p-4 space-y-2">
+      <h2 class="font-bold text-3xl">Hello {user()?.username}</h2>
+      <h3 class="font-bold text-xl">Message board</h3>
+      {/* <form action={logout} method="post">
+        <button name="logout" type="submit">
+          Logout
+        </button>
+      </form> */}
+    </main>
+  );
+}

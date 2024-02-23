@@ -1,24 +1,23 @@
-import { For } from "solid-js";
-import { createServerAction$, createServerData$ } from "solid-start/server";
+import { For, Show } from "solid-js";
 import { Status } from "./Status";
 import { knative } from "~/k8s";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
-import { getSession } from "@solid-auth/base";
-import { authOptions } from "~/server/auth";
+import { getUser } from "~/lib/server";
+import { action, useSubmission } from "@solidjs/router";
+
+const deleteServiceFromForm = async (form: FormData) => {
+  "use server";
+  const service = {
+    name: form.get("name") as string,
+  };
+  const user = await getUser();
+  await knative.deleteService(service.name, user.username);
+};
+
+const deleteServiceAction = action(deleteServiceFromForm, "createService");
 
 export const Service = ({ service }) => {
-  const [deleting, { Form }] = createServerAction$(
-    async (form: FormData, { request }) => {
-      const service = {
-        name: form.get("name") as string,
-      };
-
-      const session = await getSession(request, authOptions);
-      if (session?.user?.name) {
-        await knative.deleteService(service.name, session.user.name);
-      }
-    }
-  );
+  const deleteServiceStatus = useSubmission(deleteServiceAction);
 
   return (
     <figure class="card relative basis-64 bg-base-200 shadow grow">
@@ -50,12 +49,12 @@ export const Service = ({ service }) => {
         </p>
       </div>
       <div class="absolute top-4 right-4">
-        <Form>
+        <form action={deleteServiceAction} method="post">
           <input type="hidden" name="name" value={service.metadata.name} />
-          <button type="submit" disabled={deleting.pending}>
+          <button type="submit" disabled={deleteServiceStatus.pending}>
             <TrashIcon class="flex-shrink-0 w-5 h-5 text-gray-500 hover:text-red-500 transition duration-75 dark:text-gray-400 dark:hover:text-red-800" />
           </button>
-        </Form>
+        </form>
       </div>
     </figure>
   );

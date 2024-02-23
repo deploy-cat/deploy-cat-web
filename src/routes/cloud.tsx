@@ -1,7 +1,6 @@
-import Protected from "~/components/Protected";
-import { Outlet, Title } from "solid-start";
 import SideBar from "~/components/cloud/SideBar";
 import { A } from "@solidjs/router";
+import type { RouteSectionProps } from "@solidjs/router";
 import {
   ChartPieIcon,
   ClipboardDocumentIcon,
@@ -10,10 +9,36 @@ import {
   Squares2X2Icon,
 } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
-export const { routeData, Page } = Protected(({ user }) => {
+// const getUser = cache(async () => {
+//   "use server";
+//   const navigate = useNavigate();
+//   // const supabase = useSupabase();
+//   const {
+//     data: { user },
+//   } = await supabase.auth.getUser();
+//   console.log(user);
+//   if (!user) {
+//     navigate("/login");
+//     return;
+//   }
+//   return user;
+// }, "user");
+
+// export const route = {
+//   load: () => getUser(),
+// };
+
+export default (props: RouteSectionProps) => {
+  // const user = createAsync(getUser);
+  // const supabase = useSupabase();
+  // const {
+  //   data: { user },
+  // } = await supabase.auth.getUser();
+  // console.log(user);
+
   return (
     <main>
-      <Title>Cloud</Title>
+      <title>Cloud</title>
 
       <div class="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
@@ -85,7 +110,7 @@ export const { routeData, Page } = Protected(({ user }) => {
               </button>
             </div>
           </div>
-          <Outlet />
+          {props.children}
         </div>
         <div class="drawer-side">
           <label
@@ -95,7 +120,7 @@ export const { routeData, Page } = Protected(({ user }) => {
           ></label>
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li>
-              <A href="/cloud/dashboard">
+              <A href="/cloud">
                 <ChartPieIcon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
                 <span class="ml-3">Dashboard</span>
               </A>
@@ -111,6 +136,4 @@ export const { routeData, Page } = Protected(({ user }) => {
       </div>
     </main>
   );
-});
-
-export default Page;
+};
