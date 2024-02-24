@@ -5,6 +5,8 @@ dist
 .vercel
 .netlify
 netlify
+.vinxi
+db
 
 # dependencies
 /node_modules

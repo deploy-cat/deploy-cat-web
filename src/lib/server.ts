@@ -47,7 +47,7 @@ export const loginFromForm = async (formData: FormData) => {
   } catch (err) {
     return err as Error;
   }
-  throw redirect("/user");
+  throw redirect("/");
 };
 
 export const registerFromForm = async (formData: FormData) => {
@@ -86,19 +86,19 @@ export async function loginOrRegister(formData: FormData) {
 export async function logout() {
   const session = await getSession();
   await session.update((d) => (d.userId = undefined));
-  throw redirect("/login");
+  throw redirect("/");
 }
 
 export async function getUser() {
   const session = await getSession();
   const userId = session.data.userId;
-  if (userId === undefined) throw redirect("/login");
+  if (userId === undefined) throw redirect("/");
 
   try {
     const user = await db.user.findUnique({ where: { id: userId } });
-    if (!user) throw redirect("/login");
+    if (!user) throw redirect("/");
     return { id: user.id, username: user.username };
-  } catch {
+  } catch (e) {
     throw logout();
   }
 }

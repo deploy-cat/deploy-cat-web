@@ -5,6 +5,9 @@ WORKDIR /app
 
 ADD . .
 
-RUN npm ci && npm run build
+RUN npm ci\
+    && npx prisma generate\
+    && npm run build
 
-CMD ["npm", "run", "start"]
+# ENTRYPOINT "./entrypoint.sh"
+CMD ["./entrypoint.sh"]
