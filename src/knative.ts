@@ -31,6 +31,17 @@ export class Knative {
     };
   }
 
+  async getService(name: string, namespace: string) {
+    const { body } = await this.customObjectsApi.getNamespacedCustomObject(
+      "serving.knative.dev",
+      "v1",
+      namespace,
+      "services",
+      name
+    );
+    return body;
+  }
+
   async createService(service: Service, namespace: string) {
     console.log(namespace);
     const { body } = await this.customObjectsApi.createNamespacedCustomObject(

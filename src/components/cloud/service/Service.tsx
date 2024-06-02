@@ -3,7 +3,7 @@ import { Status } from "./Status";
 import { knative } from "~/k8s";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 import { getUser } from "~/lib/server";
-import { action, useSubmission } from "@solidjs/router";
+import { action, useSubmission, A } from "@solidjs/router";
 
 const deleteServiceFromForm = async (form: FormData) => {
   "use server";
@@ -22,7 +22,7 @@ export const Service = ({ service }) => {
   return (
     <figure class="card relative basis-64 bg-base-200 shadow grow">
       <div class="card-body">
-        <div class="card-title">{service.metadata.name}</div>
+        <A class="card-title" href={`/cloud/apps/${service.metadata.name}`}>{service.metadata.name}</A>
 
         <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
           <For each={service.spec.template.spec.containers}>

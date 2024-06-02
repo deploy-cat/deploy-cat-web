@@ -1,5 +1,5 @@
 import SideBar from "~/components/cloud/SideBar";
-import { A } from "@solidjs/router";
+import { A, useLocation } from "@solidjs/router";
 import type { RouteSectionProps } from "@solidjs/router";
 import {
   ChartPieIcon,
@@ -8,6 +8,7 @@ import {
   QuestionMarkCircleIcon,
   Squares2X2Icon,
 } from "@deploy-cat/heroicons-solid/24/solid/esm";
+import { Breadcrumbs } from "~/components/Breadcrumbs";
 
 // const getUser = cache(async () => {
 //   "use server";
@@ -110,6 +111,7 @@ export default (props: RouteSectionProps) => {
               </button>
             </div>
           </div>
+          <Breadcrumbs />
           {props.children}
         </div>
         <div class="drawer-side">

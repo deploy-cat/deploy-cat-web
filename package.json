@@ -1,7 +1,7 @@
 {
   "name": "deploy-cat-web",
   "scripts": {
-    "dev": "vinxi dev --host 0.0.0.0",
+    "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start",
     "generate": "prisma generate"

@@ -13,7 +13,6 @@ const getServices = cache(async () => {
 
 export const route = {
   load: () => {
-    getUser();
     getServices();
   },
 } satisfies RouteDefinition;

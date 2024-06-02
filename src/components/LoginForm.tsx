@@ -48,7 +48,7 @@ export const LoginForm = () => {
                 required
               />
             </div>
-            <div class="flex items-start">
+            {/* <div class="flex items-start">
               <div class="flex items-start">
                 <div class="flex items-center h-5">
                   <input
@@ -72,7 +72,7 @@ export const LoginForm = () => {
               >
                 Lost Password?
               </a>
-            </div>
+            </div> */}
             <button type="submit" class="btn btn-primary w-full">
               Login to your account
             </button>

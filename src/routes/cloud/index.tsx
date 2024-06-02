@@ -1,5 +1,5 @@
 import { knative } from "~/k8s";
-import { getUser } from "~/lib";
+import { getUser } from "~/lib/server";
 import { A, cache, createAsync, type RouteDefinition } from "@solidjs/router";
 
 const getServices = cache(async () => {
@@ -10,7 +10,6 @@ const getServices = cache(async () => {
 
 export const route = {
   load: () => {
-    getUser();
     getServices();
   },
 } satisfies RouteDefinition;
