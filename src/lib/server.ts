@@ -47,7 +47,7 @@ export const loginFromForm = async (formData: FormData) => {
   } catch (err) {
     return err as Error;
   }
-  throw redirect("/");
+  throw redirect("/cloud");
 };
 
 export const registerFromForm = async (formData: FormData) => {
