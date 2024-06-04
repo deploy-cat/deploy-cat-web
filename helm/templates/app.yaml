@@ -1,0 +1,24 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: {{ include "deploycat-web.fullname" . }}-app
+  labels:
+  {{- include "deploycat-web.labels" . | nindent 4 }}
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "{{ .Values.app.scale.min }}"
+    spec:
+      containers:
+      - env:
+        - name: DEPLOYCAT_KUBECONFIG_FROM_CLUSTER
+          value: "true"
+        - name: DATABASE_URL
+          value: postgresql://{{ include "postgresql.v1.username" .Subcharts.postgresql }}:{{ .Values.postgresql.auth.password }}@{{ include "postgresql.v1.primary.fullname" .Subcharts.postgresql }}:{{ include "postgresql.v1.service.port" .Subcharts.postgresql }}/{{ include "postgresql.v1.database" .Subcharts.postgresql }}
+        # TODO: db password should be passed via secret!!!
+        image: ghcr.io/deploy-cat/deploy-cat-web:latest
+        name: app
+        ports:
+        - containerPort: 3000
+      serviceAccountName: app

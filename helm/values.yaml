@@ -1,0 +1,14 @@
+global:
+  # storageClass:
+app:
+  serviceAccount:
+    annotations: {}
+  scale:
+    min: 1
+kubernetesClusterDomain: cluster.local
+postgresql:
+  enabled: true
+  auth:
+    username: deploycat
+    password: deploycat
+    database: deploycat
