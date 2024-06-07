@@ -87,7 +87,7 @@ export default (props: RouteSectionProps) => {
               role="tabpanel"
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
-              Tab content 2
+              {JSON.stringify(service().spec.template.spec.containers[0].env)}
             </div>
 
             <input

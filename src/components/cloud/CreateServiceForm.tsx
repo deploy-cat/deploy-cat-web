@@ -5,6 +5,7 @@ import { EnvVarsInput } from "../EnvVarsInput";
 import { ScalingInput } from "../ScalingInput";
 import { ResourcesInput } from "../ResourcesInput";
 import { getUser } from "~/lib/server";
+import type { Service } from "~/knative";
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
@@ -16,7 +17,8 @@ const createServiceFromForm = async (form: FormData) => {
     memoryLimit: `${form.get("memoryLimit")}Mi` as string,
     minScale: Number(form.get("minScale")) as number,
     maxRequests: Number(form.get("maxRequests")) as number,
-  };
+    envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
+  } as Service;
   const user = await getUser();
   await knative.createService(service, user.username);
 };

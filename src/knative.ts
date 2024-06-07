@@ -1,6 +1,6 @@
 import k8s from "@kubernetes/client-node";
 
-type Service = {
+export type Service = {
   name: string;
   image: string;
   port: number;
@@ -8,6 +8,7 @@ type Service = {
   memoryLimit: string;
   minScale: number;
   maxRequests: number;
+  envVars: { [key: string]: string };
 };
 
 export class Knative {
@@ -92,6 +93,10 @@ export class Knative {
                       memory: service.memoryLimit,
                     },
                   },
+                  env: Object.entries(service.envVars).map(([name, value]) => ({
+                    name,
+                    value,
+                  })),
                 },
               ],
               enableServiceLinks: false,
