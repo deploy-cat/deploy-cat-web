@@ -33,7 +33,7 @@ export default (props: RouteSectionProps) => {
     <div class="w-full">
       <Show when={service()} fallback={<span>no service with this name</span>}>
         <section>
-          <div>{service()?.metadata.name}</div>
+          <div>{service()?.name}</div>
 
           <div role="tablist" class="tabs tabs-lifted">
             <input
@@ -48,30 +48,27 @@ export default (props: RouteSectionProps) => {
               role="tabpanel"
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
-              <p>name: {service().metadata.name}</p>
+              <p>name: {service()?.name}</p>
               <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
-                images:{" "}
-                <For each={service().spec.template.spec.containers}>
-                  {(container) => <span>{container.image}</span>}
-                </For>
+                image {service()?.image}
               </p>
               <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
                 url:{" "}
                 <a
                   class="text-sky-400"
-                  href={service().status.url}
+                  href={service()?.raw.status.url}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  {service().status.url}
+                  {service()?.raw.status.url}
                 </a>
               </p>
               <p class="font-bold text-sm text-gray-700 dark:text-gray-400 my-1">
                 <Show
-                  when={service().status.conditions?.length}
+                  when={service()?.raw.status.conditions?.length}
                   fallback={<span>n/a/</span>}
                 >
-                  <Status conditions={service().status.conditions} />
+                  <Status conditions={service()?.raw.status.conditions} />
                 </Show>
               </p>
             </div>
@@ -87,7 +84,7 @@ export default (props: RouteSectionProps) => {
               role="tabpanel"
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
-              {JSON.stringify(service().spec.template.spec.containers[0].env)}
+              {JSON.stringify(service()?.envVars)}
             </div>
 
             <input
@@ -101,26 +98,8 @@ export default (props: RouteSectionProps) => {
               role="tabpanel"
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
-              <p>
-                cpu limit:{" "}
-                <For each={service().spec.template.spec.containers}>
-                  {(container) => (
-                    <span>
-                      {container.name}: {container?.resources?.limits?.cpu}
-                    </span>
-                  )}
-                </For>
-              </p>
-              <p>
-                cpu limit:{" "}
-                <For each={service().spec.template.spec.containers}>
-                  {(container) => (
-                    <span>
-                      {container.name}: {container?.resources?.limits?.memory}
-                    </span>
-                  )}
-                </For>
-              </p>
+              <p>cpu limit: {service()?.cpuLimit}</p>
+              <p>memory limit: {service()?.memoryLimit}</p>
             </div>
 
             <input
@@ -135,26 +114,14 @@ export default (props: RouteSectionProps) => {
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
               <p>
-                target load per pod:{" "}
-                {
-                  service().spec.template.metadata?.annotations?.[
-                    "autoscaling.knative.dev/target"
-                  ]
-                }{" "}
-                {
+                target load per pod: {service()?.maxRequests}
+                {/* {
                   service().spec.template.metadata?.annotations?.[
                     "autoscaling.knative.dev/metric"
                   ]
-                }
+                } */}
               </p>
-              <p>
-                minimum container count:{" "}
-                {
-                  service().spec.template.metadata?.annotations?.[
-                    "autoscaling.knative.dev/min-scale"
-                  ]
-                }
-              </p>
+              <p>minimum container count: {service()?.minScale}</p>
             </div>
             <input
               type="radio"

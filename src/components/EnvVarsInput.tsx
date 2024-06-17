@@ -1,4 +1,5 @@
 import { For, type Signal, createSignal } from "solid-js";
+import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
 const [envCount, setEnvCount] = createSignal(0);
 const [env, setEnv] = createSignal(
@@ -20,11 +21,7 @@ const parseClipboard = (text: string) =>
 export const EnvVarsInput = () => {
   return (
     <>
-      <div
-        onPaste={(event) =>
-          setEnv(parseClipboard(event.clipboardData?.getData("text") ?? ""))
-        }
-      >
+      <div>
         <input
           type="hidden"
           name="env"
@@ -37,7 +34,14 @@ export const EnvVarsInput = () => {
         <For
           each={env()}
           fallback={
-            <div class="my-4">
+            <div
+              class="my-4"
+              onPaste={(event) =>
+                setEnv(
+                  parseClipboard(event.clipboardData?.getData("text") ?? "")
+                )
+              }
+            >
               <p>No Environment Variables yet!</p>
               <p>
                 Use <b>Ctrl+V</b> to paste an Env File or add manually.
@@ -64,11 +68,11 @@ export const EnvVarsInput = () => {
                 placeholder="Value"
               />
               <div
-                class="btn btn-warning join-item"
+                class="btn btn-error join-item"
                 tabindex={0}
                 onClick={() => setEnv(env().filter((_, i) => i !== index()))}
               >
-                Remove
+                <TrashIcon class="flex-shrink-0 w-5 h-5" />
               </div>
             </div>
           )}

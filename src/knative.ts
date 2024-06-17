@@ -9,7 +9,33 @@ export type Service = {
   minScale: number;
   maxRequests: number;
   envVars: { [key: string]: string };
+  raw?: any;
 };
+
+const toKnService = (service: any) =>
+  ({
+    name: service.metadata.name,
+    image: service.spec.template.spec.containers[0].image,
+    port: service.spec.template.spec.containers[0].ports[0].containerPort,
+    cpuLimit: service.spec.template.spec.containers[0].resources.limits?.cpu,
+    memoryLimit:
+      service.spec.template.spec.containers[0].resources.limits?.memory,
+    minScale:
+      service.spec.template.metadata.annotations[
+        "autoscaling.knative.dev/min-scale"
+      ],
+    maxRequests:
+      service.spec.template.metadata.annotations[
+        "autoscaling.knative.dev/target"
+      ],
+    envVars: Object.fromEntries(
+      service.spec.template.spec.containers[0].env?.map(({ name, value }) => [
+        name,
+        value,
+      ]) ?? []
+    ),
+    raw: service,
+  } as Service);
 
 export class Knative {
   kubeconfig: k8s.KubeConfig;
@@ -28,7 +54,8 @@ export class Knative {
       "services"
     );
     return {
-      services: body?.items,
+      services: body?.items.map(toKnService) as Array<Service>,
+      raw: body,
     };
   }
 
@@ -40,11 +67,10 @@ export class Knative {
       "services",
       name
     );
-    return body;
+    return toKnService(body);
   }
 
   async createService(service: Service, namespace: string) {
-    console.log(namespace);
     const { body } = await this.customObjectsApi.createNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
