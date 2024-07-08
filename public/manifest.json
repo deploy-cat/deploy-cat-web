@@ -1,0 +1,9 @@
+{
+  "name": "Deploy Cat",
+  "short_name": "deploycat",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121c22",
+  "theme_color": "#b387fa",
+  "orientation": "portrait-primary"
+}
