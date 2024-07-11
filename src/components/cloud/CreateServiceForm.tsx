@@ -6,6 +6,7 @@ import { ScalingInput } from "../ScalingInput";
 import { ResourcesInput } from "../ResourcesInput";
 import { getUser } from "~/lib/server";
 import type { Service } from "~/knative";
+import { toNumber } from "~/knative";
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
@@ -13,10 +14,14 @@ const createServiceFromForm = async (form: FormData) => {
     name: form.get("name") as string,
     image: form.get("image") as string,
     port: Number(form.get("port")) as number,
-    cpuLimit: `${form.get("cpuLimit")}m` as string,
-    memoryLimit: `${form.get("memoryLimit")}Mi` as string,
-    minScale: Number(form.get("minScale")) as number,
-    maxRequests: Number(form.get("maxRequests")) as number,
+    resources: {
+      cpuLimit: toNumber(form.get("cpuLimit")),
+      memoryLimit: toNumber(form.get("memoryLimit")),
+    },
+    scaling: {
+      minScale: toNumber(form.get("minScale")),
+      maxRequests: toNumber(form.get("maxRequests")),
+    },
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   } as Service;
   const user = await getUser();
@@ -35,7 +40,7 @@ export const CreateServiceForm = () => {
           <h3 class="font-bold text-lg">Deploy new App</h3>
           <div class="collapse collapse-arrow bg-base-200 my-2">
             <input type="radio" name="my-accordion-2" checked={true} />
-            <div class="collapse-title text-xl font-medium">Name and Image</div>
+            <div class="collapse-title text-xl font-medium">General</div>
             <div class="collapse-content">
               <label class="form-control w-full">
                 <div class="label">
@@ -86,6 +91,10 @@ export const CreateServiceForm = () => {
             <input type="radio" name="my-accordion-2" />
             <div class="collapse-title text-xl font-medium">Resources</div>
             <div class="collapse-content">
+              <label class="cursor-pointer label">
+                <input type="checkbox" class="toggle toggle-primary" checked />
+                <span class="label-text">cutomize</span>
+              </label>
               <ResourcesInput />
             </div>
           </div>

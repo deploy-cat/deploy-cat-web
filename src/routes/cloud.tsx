@@ -74,7 +74,7 @@ export default (props: RouteSectionProps) => {
               <a class="btn btn-ghost text-xl">Deploy Cat</a>
             </div>
             <div class="navbar-end">
-              <button class="btn btn-ghost btn-circle">
+              {/* <button class="btn btn-ghost btn-circle">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-5 w-5"
@@ -108,7 +108,7 @@ export default (props: RouteSectionProps) => {
                   </svg>
                   <span class="badge badge-xs badge-primary indicator-item"></span>
                 </div>
-              </button>
+              </button> */}
             </div>
           </div>
           <Breadcrumbs />

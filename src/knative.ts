@@ -4,30 +4,51 @@ export type Service = {
   name: string;
   image: string;
   port: number;
-  cpuLimit: string;
-  memoryLimit: string;
-  minScale: number;
-  maxRequests: number;
+  resources: {
+    cpuLimit: number;
+    memoryLimit: number;
+  };
+  scaling: {
+    minScale: number;
+    maxRequests: number;
+  };
   envVars: { [key: string]: string };
   raw?: any;
 };
+
+export const toNumber = (value: any) => value && Number(value);
 
 const toKnService = (service: any) =>
   ({
     name: service.metadata.name,
     image: service.spec.template.spec.containers[0].image,
     port: service.spec.template.spec.containers[0].ports[0].containerPort,
-    cpuLimit: service.spec.template.spec.containers[0].resources.limits?.cpu,
-    memoryLimit:
-      service.spec.template.spec.containers[0].resources.limits?.memory,
-    minScale:
-      service.spec.template.metadata.annotations[
-        "autoscaling.knative.dev/min-scale"
-      ],
-    maxRequests:
-      service.spec.template.metadata.annotations[
-        "autoscaling.knative.dev/target"
-      ],
+    resources: {
+      cpuLimit: toNumber(
+        service.spec.template.spec.containers[0].resources.limits?.cpu.replace(
+          "m",
+          ""
+        )
+      ),
+      memoryLimit: toNumber(
+        service.spec.template.spec.containers[0].resources.limits?.memory.replace(
+          "Mi",
+          ""
+        )
+      ),
+    },
+    scaling: {
+      minScale: toNumber(
+        service.spec.template.metadata.annotations[
+          "autoscaling.knative.dev/min-scale"
+        ]
+      ),
+      maxRequests: toNumber(
+        service.spec.template.metadata.annotations[
+          "autoscaling.knative.dev/target"
+        ]
+      ),
+    },
     envVars: Object.fromEntries(
       service.spec.template.spec.containers[0].env?.map(({ name, value }) => [
         name,
@@ -82,6 +103,9 @@ export class Knative {
         metadata: {
           name: service.name,
           namespace: namespace,
+          labels: {
+            "app.kubernetes.io/managed-by": "deploycat",
+          },
         },
         spec: {
           template: {
@@ -89,9 +113,11 @@ export class Knative {
               annotations: {
                 "autoscaling.knative.dev/initial-scale": "1",
                 "autoscaling.knative.dev/min-scale":
-                  service.minScale.toString(),
+                  service.scaling.minScale &&
+                  service.scaling.minScale.toString(),
                 "autoscaling.knative.dev/target":
-                  service.maxRequests.toString(),
+                  service.scaling.maxRequests &&
+                  service.scaling.maxRequests.toString(),
                 "autoscaling.knative.dev/metric": "rps",
               },
             },
@@ -115,8 +141,12 @@ export class Knative {
                   },
                   resources: {
                     limits: {
-                      cpu: service.cpuLimit,
-                      memory: service.memoryLimit,
+                      cpu:
+                        service.resources.cpuLimit &&
+                        `${service.resources.cpuLimit.toString()}m`,
+                      memory:
+                        service.resources.memoryLimit &&
+                        `${service.resources.memoryLimit.toString()}Mi`,
                     },
                   },
                   env: Object.entries(service.envVars).map(([name, value]) => ({
@@ -127,6 +157,71 @@ export class Knative {
               ],
               enableServiceLinks: false,
               timeoutSeconds: 300,
+            },
+          },
+        },
+      }
+    );
+    return body;
+  }
+
+  async updateService(name: string, service: Service, namespace: string) {
+    const { body } = await this.customObjectsApi.patchNamespacedCustomObject(
+      "serving.knative.dev",
+      "v1",
+      namespace,
+      "services",
+      name,
+      {
+        apiVersion: "serving.knative.dev/v1",
+        kind: "Service",
+        spec: {
+          template: {
+            metadata: {
+              annotations: {
+                "autoscaling.knative.dev/initial-scale": "1",
+                "autoscaling.knative.dev/min-scale":
+                  service.scaling.minScale &&
+                  service.scaling.minScale.toString(),
+                "autoscaling.knative.dev/target":
+                  service.scaling.maxRequests &&
+                  service.scaling.maxRequests.toString(),
+                "autoscaling.knative.dev/metric": "rps",
+              },
+            },
+            spec: {
+              containers: [
+                {
+                  image: service.image,
+                  name: "user-container",
+                  ports: [
+                    {
+                      containerPort: service.port,
+                      protocol: "TCP",
+                    },
+                  ],
+                  readinessProbe: {
+                    successThreshold: 1,
+                    tcpSocket: {
+                      port: service.port,
+                    },
+                  },
+                  resources: {
+                    limits: {
+                      cpu:
+                        service.resources.cpuLimit &&
+                        `${service.resources.cpuLimit.toString()}m`,
+                      memory:
+                        service.resources.memoryLimit &&
+                        `${service.resources.memoryLimit.toString()}Mi`,
+                    },
+                  },
+                  env: Object.entries(service.envVars).map(([name, value]) => ({
+                    name,
+                    value,
+                  })),
+                },
+              ],
             },
           },
         },

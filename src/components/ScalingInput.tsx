@@ -1,35 +1,48 @@
 import { createSignal, Show } from "solid-js";
 
-export const ScalingInput = () => {
-  const [minScale, setMinScale] = createSignal(1);
-  const [maxReq, setMaxReq] = createSignal(300);
+export const ScalingInput = ({ data }) => {
+  const [minScale, setMinScale] = createSignal(data?.minScale);
+  const [maxReq, setMaxReq] = createSignal(data?.maxRequests);
 
   return (
     <>
       <p class="my-2">Minimum Scale: {minScale()}</p>
-      <label class="form-control w-full">
+      <label class="label cursor-pointer">
+        <span class="label-text">use default</span>
         <input
-          type="range"
-          name="minScale"
-          min="0"
-          max="4"
-          value={minScale()}
-          class="range"
-          step="1"
-          onChange={(e) => setMinScale(Number(e.target.value))}
+          type="checkbox"
+          checked={minScale() === undefined}
+          onChange={(event) =>
+            setMinScale(event.target.checked ? undefined : 1)
+          }
+          class="checkbox"
         />
-        <div class="w-full flex justify-between text-xs px-2">
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-        </div>
-        <div class="label">
-          <span class="label-text">0</span>
-          <span class="label-text-alt">4</span>
-        </div>
       </label>
+      <Show when={minScale() !== undefined}>
+        <label class="form-control w-full">
+          <input
+            type="range"
+            name="minScale"
+            min="0"
+            max="4"
+            value={minScale()}
+            class="range"
+            step="1"
+            onChange={(e) => setMinScale(Number(e.target.value))}
+          />
+          <div class="w-full flex justify-between text-xs px-2">
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+          </div>
+          <div class="label">
+            <span class="label-text">0</span>
+            <span class="label-text-alt">4</span>
+          </div>
+        </label>
+      </Show>
       <Show when={minScale() === 0}>
         <div role="alert" class="alert alert-info">
           <svg
@@ -49,29 +62,42 @@ export const ScalingInput = () => {
         </div>
       </Show>
       <p class="my-2">Max requestes: {maxReq()} req/s</p>
-      <label class="form-control w-full">
+      <label class="label cursor-pointer">
+        <span class="label-text">use default</span>
         <input
-          type="range"
-          name="maxRequests"
-          min="100"
-          max="500"
-          value={maxReq()}
-          class="range"
-          step="100"
-          onChange={(e) => setMaxReq(Number(e.target.value))}
+          type="checkbox"
+          checked={maxReq() === undefined}
+          onChange={(event) =>
+            setMaxReq(event.target.checked ? undefined : 300)
+          }
+          class="checkbox"
         />
-        <div class="w-full flex justify-between text-xs px-2">
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-          <span>|</span>
-        </div>
-        <div class="label">
-          <span class="label-text">100 req/s</span>
-          <span class="label-text-alt">500 req/s</span>
-        </div>
       </label>
+      <Show when={maxReq() !== undefined}>
+        <label class="form-control w-full">
+          <input
+            type="range"
+            name="maxRequests"
+            min="100"
+            max="500"
+            value={maxReq()}
+            class="range"
+            step="100"
+            onChange={(e) => setMaxReq(Number(e.target.value))}
+          />
+          <div class="w-full flex justify-between text-xs px-2">
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+            <span>|</span>
+          </div>
+          <div class="label">
+            <span class="label-text">100 req/s</span>
+            <span class="label-text-alt">500 req/s</span>
+          </div>
+        </label>
+      </Show>
     </>
   );
 };

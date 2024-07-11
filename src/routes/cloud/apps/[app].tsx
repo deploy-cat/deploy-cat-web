@@ -12,12 +12,43 @@ import {
 } from "@solidjs/router";
 import { getUser } from "~/lib/server";
 import { Status } from "~/components/cloud/service/Status";
+import { EnvVarsInput } from "~/components/EnvVarsInput";
+import { ScalingInput } from "~/components/ScalingInput";
+import { ResourcesInput } from "~/components/ResourcesInput";
+import { action, useSubmission } from "@solidjs/router";
+import { toNumber } from "~/knative";
 
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
   return await knative.getService(app, user.username);
 }, "service");
+
+const updateServiceFromForm = async (form: FormData) => {
+  "use server";
+  const service = {
+    name: form.get("name") as string,
+    image: form.get("image") as string,
+    port: Number(form.get("port")) as number,
+    resources: {
+      cpuLimit: toNumber(form.get("cpuLimit")),
+      memoryLimit: toNumber(form.get("memoryLimit")),
+    },
+    scaling: {
+      minScale: toNumber(form.get("minScale")),
+      maxRequests: toNumber(form.get("maxRequests")),
+    },
+    envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
+  };
+  const user = await getUser();
+  await knative.updateService(
+    form.get("name") as string,
+    service,
+    user.username
+  );
+};
+
+const updateServiceAction = action(updateServiceFromForm, "updateService");
 
 export const route = {
   load: ({ params }) => {
@@ -28,12 +59,13 @@ export const route = {
 export default (props: RouteSectionProps) => {
   const params = useParams();
   const service = createAsync(() => getService(params.app));
+  const updateServiceStatus = useSubmission(updateServiceAction);
 
   return (
     <div class="w-full">
       <Show when={service()} fallback={<span>no service with this name</span>}>
-        <section>
-          <div>{service()?.name}</div>
+        <section class="m-2">
+          <h1 class="text-2xl font-medium my-5">{service()?.name}</h1>
 
           <div role="tablist" class="tabs tabs-lifted">
             <input
@@ -48,12 +80,7 @@ export default (props: RouteSectionProps) => {
               role="tabpanel"
               class="tab-content bg-base-100 border-base-300 rounded-box p-6"
             >
-              <p>name: {service()?.name}</p>
               <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
-                image {service()?.image}
-              </p>
-              <p class="font-normal text-gray-700 dark:text-gray-400 my-1">
-                url:{" "}
                 <a
                   class="text-sky-400"
                   href={service()?.raw.status.url}
@@ -72,57 +99,6 @@ export default (props: RouteSectionProps) => {
                 </Show>
               </p>
             </div>
-
-            <input
-              type="radio"
-              name="my_tabs_2"
-              role="tab"
-              class="tab"
-              aria-label="Environment"
-            />
-            <div
-              role="tabpanel"
-              class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-            >
-              {JSON.stringify(service()?.envVars)}
-            </div>
-
-            <input
-              type="radio"
-              name="my_tabs_2"
-              role="tab"
-              class="tab"
-              aria-label="Resources"
-            />
-            <div
-              role="tabpanel"
-              class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-            >
-              <p>cpu limit: {service()?.cpuLimit}</p>
-              <p>memory limit: {service()?.memoryLimit}</p>
-            </div>
-
-            <input
-              type="radio"
-              name="my_tabs_2"
-              role="tab"
-              class="tab"
-              aria-label="Scaling"
-            />
-            <div
-              role="tabpanel"
-              class="tab-content bg-base-100 border-base-300 rounded-box p-6"
-            >
-              <p>
-                target load per pod: {service()?.maxRequests}
-                {/* {
-                  service().spec.template.metadata?.annotations?.[
-                    "autoscaling.knative.dev/metric"
-                  ]
-                } */}
-              </p>
-              <p>minimum container count: {service()?.minScale}</p>
-            </div>
             <input
               type="radio"
               name="my_tabs_2"
@@ -137,6 +113,87 @@ export default (props: RouteSectionProps) => {
               Trafic graph / Requests graph
             </div>
           </div>
+
+          <form action={updateServiceAction} method="post">
+            <div class="flex flex-wrap flex-row gap-2 my-2">
+              <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
+                <input type="checkbox" />
+                {/* <input type="radio" name="my-accordion-2" checked={true} /> */}
+                <div class="collapse-title text-xl font-medium">General</div>
+                <div class="collapse-content">
+                  <label class="form-control w-full">
+                    <div class="label">
+                      <span class="label-text">Name</span>
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      value={service()?.name}
+                      class="input input-bordered w-full"
+                      disabled
+                    />
+                  </label>
+                  <label class="form-control w-full">
+                    <div class="label">
+                      <span class="label-text">Image</span>
+                    </div>
+                    <input
+                      type="text"
+                      name="image"
+                      required
+                      value={service()?.image}
+                      class="input input-bordered w-full"
+                    />
+                  </label>
+                  <label class="form-control w-full">
+                    <div class="label">
+                      <span class="label-text">Port</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="port"
+                      required
+                      value={service()?.port}
+                      class="input input-bordered w-full"
+                    />
+                  </label>
+                </div>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
+                <input type="checkbox" />
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <div class="collapse-title text-xl font-medium">
+                  Environment
+                </div>
+                <div class="collapse-content">
+                  <EnvVarsInput data={service()?.envVars} />
+                </div>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <input type="checkbox" />
+                <div class="collapse-title text-xl font-medium">Resources</div>
+                <div class="collapse-content">
+                  <ResourcesInput data={service()?.resources} />
+                </div>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <input type="checkbox" />
+                <div class="collapse-title text-xl font-medium">Scaling</div>
+                <div class="collapse-content">
+                  <ScalingInput data={service()?.scaling} />
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary">
+              <Show when={updateServiceStatus.pending}>
+                <span class="loading loading-spinner"></span>
+              </Show>
+              Submit Changes
+            </button>
+          </form>
         </section>
       </Show>
     </div>

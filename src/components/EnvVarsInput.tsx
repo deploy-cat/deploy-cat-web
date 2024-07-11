@@ -1,11 +1,6 @@
 import { For, type Signal, createSignal } from "solid-js";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
-const [envCount, setEnvCount] = createSignal(0);
-const [env, setEnv] = createSignal(
-  [] as Array<{ key: Signal<string>; value: Signal<string> }>
-);
-
 const parseClipboard = (text: string) =>
   text
     .split("\n")
@@ -18,10 +13,19 @@ const parseClipboard = (text: string) =>
       };
     });
 
-export const EnvVarsInput = () => {
+export const EnvVarsInput = ({ data }) => {
+  const [env, setEnv] = createSignal(
+    (data &&
+      Object.entries(data).map(([key, value]) => ({
+        key: createSignal(key),
+        value: createSignal(value),
+      }))) ??
+      ([] as Array<{ key: Signal<string>; value: Signal<string> }>)
+  );
+
   return (
     <>
-      <div>
+      <div class="flex flex-col">
         <input
           type="hidden"
           name="env"
