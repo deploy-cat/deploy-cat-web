@@ -91,10 +91,6 @@ export const CreateServiceForm = () => {
             <input type="radio" name="my-accordion-2" />
             <div class="collapse-title text-xl font-medium">Resources</div>
             <div class="collapse-content">
-              <label class="cursor-pointer label">
-                <input type="checkbox" class="toggle toggle-primary" checked />
-                <span class="label-text">cutomize</span>
-              </label>
               <ResourcesInput />
             </div>
           </div>

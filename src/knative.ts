@@ -166,7 +166,9 @@ export class Knative {
   }
 
   async updateService(name: string, service: Service, namespace: string) {
-    const { body } = await this.customObjectsApi.patchNamespacedCustomObject(
+    const currentService = await this.getService(name, namespace);
+
+    const { body } = await this.customObjectsApi.replaceNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
       namespace,
@@ -175,6 +177,17 @@ export class Knative {
       {
         apiVersion: "serving.knative.dev/v1",
         kind: "Service",
+        metadata: {
+          name: service.name,
+          namespace: namespace,
+          labels: {
+            "app.kubernetes.io/managed-by": "deploycat",
+          },
+          annotations: {
+            ...currentService.raw.metadata.annotations,
+          },
+          resourceVersion: currentService.raw.metadata.resourceVersion,
+        },
         spec: {
           template: {
             metadata: {
@@ -190,6 +203,7 @@ export class Knative {
               },
             },
             spec: {
+              containerConcurrency: 0,
               containers: [
                 {
                   image: service.image,
@@ -222,6 +236,8 @@ export class Knative {
                   })),
                 },
               ],
+              enableServiceLinks: false,
+              timeoutSeconds: 300,
             },
           },
         },

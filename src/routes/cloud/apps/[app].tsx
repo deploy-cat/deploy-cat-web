@@ -117,21 +117,20 @@ export default (props: RouteSectionProps) => {
           <form action={updateServiceAction} method="post">
             <div class="flex flex-wrap flex-row gap-2 my-2">
               <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-                <input type="checkbox" />
+                <input type="checkbox" checked />
                 {/* <input type="radio" name="my-accordion-2" checked={true} /> */}
                 <div class="collapse-title text-xl font-medium">General</div>
                 <div class="collapse-content">
                   <label class="form-control w-full">
-                    <div class="label">
+                    {/* <div class="label">
                       <span class="label-text">Name</span>
-                    </div>
+                    </div> */}
                     <input
-                      type="text"
+                      type="hidden"
                       name="name"
                       required
                       value={service()?.name}
                       class="input input-bordered w-full"
-                      disabled
                     />
                   </label>
                   <label class="form-control w-full">
@@ -161,7 +160,7 @@ export default (props: RouteSectionProps) => {
                 </div>
               </div>
               <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-                <input type="checkbox" />
+                <input type="checkbox" checked />
                 {/* <input type="radio" name="my-accordion-2" /> */}
                 <div class="collapse-title text-xl font-medium">
                   Environment
@@ -172,7 +171,7 @@ export default (props: RouteSectionProps) => {
               </div>
               <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
                 {/* <input type="radio" name="my-accordion-2" /> */}
-                <input type="checkbox" />
+                <input type="checkbox" checked />
                 <div class="collapse-title text-xl font-medium">Resources</div>
                 <div class="collapse-content">
                   <ResourcesInput data={service()?.resources} />
@@ -180,7 +179,7 @@ export default (props: RouteSectionProps) => {
               </div>
               <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
                 {/* <input type="radio" name="my-accordion-2" /> */}
-                <input type="checkbox" />
+                <input type="checkbox" checked />
                 <div class="collapse-title text-xl font-medium">Scaling</div>
                 <div class="collapse-content">
                   <ScalingInput data={service()?.scaling} />
