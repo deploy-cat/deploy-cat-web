@@ -17,12 +17,63 @@ import { ScalingInput } from "~/components/ScalingInput";
 import { ResourcesInput } from "~/components/ResourcesInput";
 import { action, useSubmission } from "@solidjs/router";
 import { toNumber } from "~/knative";
+import { Monitoring } from "~/components/cloud/service/Monitoring";
+import { rangeQuery } from "~/lib/prometheus";
 
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
   return await knative.getService(app, user.username);
 }, "service");
+
+const getMonitoringOverview = cache(async (app: string) => {
+  "use server";
+
+  const user = await getUser();
+  const service = await knative.getService(app, user.username);
+
+  const namespace = user.username;
+  const revision = service.raw.status.latestReadyRevisionName;
+
+  const start = new Date(Date.now() - 60 * 20 * 1000);
+  const end = new Date();
+  const step = 60;
+
+  const compute = await rangeQuery({
+    query: `sum(rate(container_cpu_usage_seconds_total{namespace="${namespace}", pod=~"${revision}.*", container != "POD", container != ""}[1m])) by (container)`,
+    start,
+    end,
+    step,
+  });
+
+  const memory = await rangeQuery({
+    query: `sum(container_memory_usage_bytes{namespace="${namespace}", pod=~"${revision}.*", container != "POD", container != ""}) by (container)`,
+    start,
+    end,
+    step,
+  });
+
+  const requests = await rangeQuery({
+    query: `label_replace(round(sum(rate(activator_request_count{namespace_name="${namespace}", configuration_name=~"${app}",revision_name=~"${revision}"}[1m])) by (revision_name), 0.001), "revision_name", "$2", "revision_name", "${app}(-+)(.*)")`,
+    start,
+    end,
+    step,
+  });
+
+  const pods = await rangeQuery({
+    query: `sum(autoscaler_actual_pods{namespace_name="${namespace}", configuration_name="${app}", revision_name="${revision}"})`,
+    start,
+    end,
+    step,
+  });
+
+  return {
+    compute,
+    memory,
+    requests,
+    pods,
+  };
+}, "monitoring-overview");
 
 const updateServiceFromForm = async (form: FormData) => {
   "use server";
@@ -53,12 +104,14 @@ const updateServiceAction = action(updateServiceFromForm, "updateService");
 export const route = {
   load: ({ params }) => {
     getService(params.app);
+    getMonitoringOverview(params.app);
   },
 } satisfies RouteDefinition;
 
 export default (props: RouteSectionProps) => {
   const params = useParams();
   const service = createAsync(() => getService(params.app));
+  const monitoring = createAsync(() => getMonitoringOverview(params.app));
   const updateServiceStatus = useSubmission(updateServiceAction);
 
   return (
@@ -113,6 +166,9 @@ export default (props: RouteSectionProps) => {
               Trafic graph / Requests graph
             </div>
           </div>
+          <Show when={monitoring()}>
+            {(data) => <Monitoring data={data()} />}
+          </Show>
 
           <form action={updateServiceAction} method="post">
             <div class="flex flex-wrap flex-row gap-2 my-2">

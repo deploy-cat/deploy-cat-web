@@ -8,6 +8,7 @@ module.exports = {
     },
   },
   daisyui: {
-    themes: ["sunset"],
+    themes: ["bumblebee", "sunset"],
+    darkTheme: "sunset",
   },
 };
