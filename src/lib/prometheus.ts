@@ -1,4 +1,4 @@
-const baseUrl = "http://127.0.0.1:9090/api/v1";
+const baseUrl = `${process.env.DEPLOYCAT_PROMETHEUS_URL}/api/v1`;
 
 export const rangeQuery = async ({
   query,

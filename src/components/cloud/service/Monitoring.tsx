@@ -187,7 +187,7 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
   return (
     <>
       <div class="flex flex-wrap flex-row gap-2 my-2">
-        <button class="card bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
           <Show
             when={compute?.data.result[1]?.values}
             fallback={
@@ -219,7 +219,7 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
             )}
           </Show>
         </button>
-        <button class="card bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
           <Show
             when={memory?.data.result[1]?.values}
             fallback={
@@ -251,7 +251,7 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
             )}
           </Show>
         </button>
-        <button class="card bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
           <Show
             when={requests?.data.result[0]?.values}
             fallback={
@@ -283,7 +283,7 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
             )}
           </Show>
         </button>
-        <button class="card bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
           <Show
             when={pods?.data.result[0]?.values}
             fallback={

@@ -15,17 +15,22 @@ export function EChartSSR({ option, onlyServer }) {
   const svg = chart.renderToSVGString();
   chart.dispose();
 
+  const innerSVG = svg.match(/(<svg.*?\>)(?<inner>.*?)(<\/svg\>)/s)?.groups
+    ?.inner;
+
   const ClientOnlyEChart = clientOnly(() => import("./EChart"));
 
   return isServer || onlyServer ? (
-    <div
+    <svg
       style={{
         width: "100%",
         height: "100%",
       }}
       class="flex items-end"
-      innerHTML={svg}
-    ></div>
+      preserveAspectRatio="none"
+      viewBox="0 0 192 128"
+      innerHTML={innerSVG}
+    ></svg>
   ) : (
     <ClientOnlyEChart option={option} />
   );
