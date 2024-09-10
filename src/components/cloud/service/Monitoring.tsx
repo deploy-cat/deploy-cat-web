@@ -1,76 +1,10 @@
-import { createSignal, For, Show } from "solid-js";
-import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
-import { rangeQuery } from "~/lib/prometheus";
+import { Show } from "solid-js";
 import { clientOnly } from "@solidjs/start";
-import { onMount } from "solid-js";
-import { Chart, Title, Tooltip, Legend, Colors } from "chart.js";
-import { Line } from "solid-chartjs";
-// import TrafficChart from "./TrafficChart";
-// import { EChartsAutoSize } from "echarts-solid";
-import SolidECharts from "solid-echarts";
-import EChart from "./EChart";
 import { graphic } from "echarts";
 import { EChartSSR } from "./EChartSSR";
+import { A, useParams } from "@solidjs/router";
 
-// const start = new Date(Date.now() - 60 * 20 * 1000);
-// const end = new Date();
-// const step = 60;
-
-// const getCpuUsage = cache(async ({ namespace, app, revision }) => {
-//   "use server";
-
-//   return await rangeQuery({
-//     query: `sum(rate(container_cpu_usage_seconds_total{namespace="adb-sh", pod=~"nginx-00001.*", container != "POD", container != ""}[1m])) by (container)`,
-//     start,
-//     end,
-//     step,
-//   });
-// }, "cpu-usage");
-
-// const getMemoryUsage = cache(async () => {
-//   "use server";
-
-//   return await rangeQuery({
-//     query: `sum(container_memory_usage_bytes{namespace="adb-sh", pod=~"nginx-00001.*", container != "POD", container != ""}) by (container)`,
-//     start,
-//     end,
-//     step,
-//   });
-// }, "memory-usage");
-
-// const getRequests = cache(async () => {
-//   "use server";
-
-//   return await rangeQuery({
-//     query: `label_replace(round(sum(rate(activator_request_count{namespace_name="adb-sh", configuration_name=~"nginx",revision_name=~"nginx-00001"}[1m])) by (revision_name), 0.001), "revision_name", "$2", "revision_name", "nginx(-+)(.*)")`,
-//     start,
-//     end,
-//     step,
-//   });
-// }, "requests");
-
-// const getPodsCount = cache(async () => {
-//   "use server";
-
-//   return await rangeQuery({
-//     query: `sum(autoscaler_actual_pods{namespace_name="adb-sh", configuration_name="nginx", revision_name="nginx-00001"})`,
-//     start,
-//     end,
-//     step: 60,
-//   });
-// }, "pods-count");
-
-// export const route = {
-//   load: (conf) => {
-//     console.log("lol");
-//     getCpuUsage(conf);
-//     getMemoryUsage();
-//     getRequests();
-//     getPodsCount();
-//   },
-// } satisfies RouteDefinition;
-
-const formatterFactory =
+export const formatterFactory =
   ({ digits = 0, prefix = "" }) =>
   (n) => {
     const ranges = [
@@ -140,16 +74,24 @@ const podsCountColor = new graphic.LinearGradient(0, 0, 0, 1, [
   },
 ]);
 
-const minimalChart = ({ data, color = computeColor, smooth = true }) => ({
+const minimalChart = ({
+  data,
+  color = computeColor,
+  smooth = true,
+  step = "",
+  type = "log",
+  start,
+  end,
+}) => ({
   xAxis: {
-    type: "category",
+    type: "time",
     boundaryGap: false,
     show: false,
-    data: data.map(([k, v]) => new Date(k * 1000).toLocaleTimeString()),
-    // min: start.toLocaleTimeString(),
-    // max: end.toLocaleTimeString(),
+    min: start.getTime(),
+    max: end.getTime(),
   },
   yAxis: {
+    type,
     show: false,
   },
   animation: false,
@@ -161,8 +103,9 @@ const minimalChart = ({ data, color = computeColor, smooth = true }) => ({
   },
   series: [
     {
-      data: data.map(([k, v]) => v),
+      data: data?.map(([k, v]) => [k * 1000, v]),
       type: "line",
+      step,
       smooth,
       lineStyle: {
         width: 0,
@@ -176,7 +119,13 @@ const minimalChart = ({ data, color = computeColor, smooth = true }) => ({
   ],
 });
 
-export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
+export const Monitoring = ({
+  data: {
+    stats: { compute, memory, requests, pods },
+    start,
+    end,
+  },
+}) => {
   // const cpuUsage = createAsync(() => getCpuUsage(props));
   // const memoryUsage = createAsync(() => getMemoryUsage());
   // const requests = createAsync(() => getRequests());
@@ -184,10 +133,15 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
 
   const ClientOnlyEChart = clientOnly(() => import("./EChart"));
 
+  const params = useParams();
+
   return (
     <>
       <div class="flex flex-wrap flex-row gap-2 my-2">
-        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        <A
+          href={`/cloud/apps/${params.app}/stats/compute`}
+          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+        >
           <Show
             when={compute?.data.result[1]?.values}
             fallback={
@@ -202,6 +156,8 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
                 <EChartSSR
                   option={minimalChart({
                     data: data(),
+                    start,
+                    end,
                   })}
                   onlyServer={true}
                 />
@@ -218,8 +174,11 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
               </>
             )}
           </Show>
-        </button>
-        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        </A>
+        <A
+          href={`/cloud/apps/${params.app}/stats/memory`}
+          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+        >
           <Show
             when={memory?.data.result[1]?.values}
             fallback={
@@ -235,6 +194,8 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
                   option={minimalChart({
                     data: data(),
                     color: memoryColor,
+                    start,
+                    end,
                   })}
                   onlyServer={true}
                 />
@@ -250,8 +211,11 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
               </>
             )}
           </Show>
-        </button>
-        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        </A>
+        <A
+          href={`/cloud/apps/${params.app}/stats/requests`}
+          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+        >
           <Show
             when={requests?.data.result[0]?.values}
             fallback={
@@ -267,6 +231,9 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
                   option={minimalChart({
                     data: data(),
                     color: requestsColor,
+                    type: "value",
+                    start,
+                    end,
                   })}
                   onlyServer={true}
                 />
@@ -282,8 +249,11 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
               </>
             )}
           </Show>
-        </button>
-        <button class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden shadow-xl">
+        </A>
+        <A
+          href={`/cloud/apps/${params.app}/stats/pods`}
+          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+        >
           <Show
             when={pods?.data.result[0]?.values}
             fallback={
@@ -300,6 +270,10 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
                     data: data(),
                     color: podsCountColor,
                     smooth: false,
+                    step: "start",
+                    type: "value",
+                    start,
+                    end,
                   })}
                   onlyServer={true}
                 />
@@ -314,161 +288,7 @@ export const Monitoring = ({ data: { compute, memory, requests, pods } }) => {
               </>
             )}
           </Show>
-        </button>
-      </div>
-      <div class="flex flex-wrap flex-row gap-2 my-2">
-        <div class="card bg-base-200 w-96 h-96 max-w-lg grow shadow-xl">
-          <div class="card-body p-4">
-            <h2 class="card-title text-xl font-medium">
-              Compute Usage per Minute
-            </h2>
-            <Show when={compute}>
-              {(data) => (
-                <>
-                  <ClientOnlyEChart
-                    option={{
-                      xAxis: {
-                        type: "category",
-                        boundaryGap: false,
-                        data: data()?.data.result[1]?.values.map(([k, v]) =>
-                          new Date(k * 1000).toLocaleTimeString()
-                        ),
-                      },
-                      yAxis: {
-                        type: "value",
-                        axisLabel: {
-                          formatter: formatterFactory({ prefix: "s" }),
-                        },
-                      },
-                      animation: false,
-                      tooltip: {
-                        trigger: "axis",
-                        valueFormatter: formatterFactory({
-                          prefix: "s",
-                          digits: 2,
-                        }),
-                        axisPointer: {
-                          type: "cross",
-                          label: {
-                            backgroundColor: "#6a7985",
-                          },
-                        },
-                      },
-                      series: [
-                        {
-                          data: data()?.data.result[1]?.values.map(
-                            ([k, v]) => v
-                          ),
-                          type: "line",
-                          smooth: true,
-                          lineStyle: {
-                            width: 0,
-                          },
-                          showSymbol: false,
-                          areaStyle: {
-                            opacity: 0.8,
-                            color: new graphic.LinearGradient(0, 0, 0, 1, [
-                              {
-                                offset: 0,
-                                color: "rgb(128, 255, 165)",
-                              },
-                              {
-                                offset: 1,
-                                color: "rgb(1, 191, 236)",
-                              },
-                            ]),
-                          },
-                        },
-                      ],
-                    }}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                    }}
-                    opts={{
-                      renderer: "svg",
-                    }}
-                  />
-                </>
-              )}
-            </Show>
-          </div>
-        </div>
-        <div class="card bg-base-200 w-96 h-96 max-w-lg grow shadow-xl">
-          <div class="card-body p-4">
-            <h2 class="card-title text-xl font-medium">Memory Usage</h2>
-            <Show when={memory}>
-              {(data) => (
-                <>
-                  <ClientOnlyEChart
-                    option={{
-                      xAxis: {
-                        type: "category",
-                        boundaryGap: false,
-                        data: data()?.data.result[1]?.values.map(([k, v]) =>
-                          new Date(k * 1000).toLocaleTimeString()
-                        ),
-                      },
-                      yAxis: {
-                        type: "value",
-                        axisLabel: {
-                          formatter: formatterFactory({ prefix: "B" }),
-                        },
-                      },
-                      animation: false,
-                      tooltip: {
-                        trigger: "axis",
-                        valueFormatter: formatterFactory({
-                          prefix: "B",
-                          digits: 2,
-                        }),
-                        axisPointer: {
-                          type: "cross",
-                          label: {
-                            backgroundColor: "#6a7985",
-                          },
-                        },
-                      },
-                      series: [
-                        {
-                          data: data()?.data.result[1]?.values.map(
-                            ([k, v]) => v
-                          ),
-                          type: "line",
-                          smooth: true,
-                          lineStyle: {
-                            width: 0,
-                          },
-                          showSymbol: false,
-                          areaStyle: {
-                            opacity: 0.8,
-                            color: new graphic.LinearGradient(0, 0, 0, 1, [
-                              {
-                                offset: 0,
-                                color: "rgb(55, 162, 255)",
-                              },
-                              {
-                                offset: 1,
-                                color: "rgb(116, 21, 219)",
-                              },
-                            ]),
-                          },
-                        },
-                      ],
-                    }}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                    }}
-                    opts={{
-                      renderer: "svg",
-                    }}
-                  />
-                </>
-              )}
-            </Show>
-          </div>
-        </div>
+        </A>
       </div>
     </>
   );

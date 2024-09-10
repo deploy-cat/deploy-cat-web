@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.card.active {
+  @apply shadow-xl;
+}
+
+.tab.active {
+  @apply tab-active;
+}
