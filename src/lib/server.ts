@@ -2,6 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { useSession } from "vinxi/http";
 import { db } from "./db";
+import { k8sCore } from "~/k8s";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {
@@ -24,6 +25,22 @@ async function login(username: string, password: string) {
 async function register(username: string, password: string) {
   const existingUser = await db.user.findUnique({ where: { username } });
   if (existingUser) throw new Error("User already exists");
+  try {
+    await k8sCore.readNamespace(username);
+    throw new Error("Namespace already exists!");
+  } catch (e) {}
+
+  await k8sCore.createNamespace({
+    apiVersion: "v1",
+    kind: "Namespace",
+    metadata: {
+      name: username,
+      labels: {
+        "app.kubernetes.io/managed-by": "deploycat",
+      },
+    },
+  });
+
   return db.user.create({
     data: { username: username, password },
   });
