@@ -19,6 +19,7 @@
     "@supabase/supabase-js": "^2.39.3",
     "autoprefixer": "^10.4.14",
     "chart.js": "^4.4.4",
+    "color-hash": "^2.0.2",
     "daisyui": "^4.6.0",
     "echarts": "^5.5.1",
     "mongoose-zod": "^0.1.1",

@@ -124,6 +124,13 @@ export default (props: RouteSectionProps) => {
             >
               Settings
             </A>
+            <A
+              href={`/cloud/apps/${params.app}/logs`}
+              role="tab"
+              class="tab [--tab-border-color:teal]"
+            >
+              Logs
+            </A>
           </div>
 
           {props.children}
