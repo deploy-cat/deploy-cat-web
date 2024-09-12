@@ -39,7 +39,7 @@ export default (props: RouteSectionProps) => {
 
   return (
     <main>
-      <title>Cloud</title>
+      <title>DeployCat Cloud</title>
 
       <div class="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
@@ -71,7 +71,7 @@ export default (props: RouteSectionProps) => {
               </div>
             </div>
             <div class="navbar-center">
-              <a class="btn btn-ghost text-xl">Deploy Cat</a>
+              <a class="btn btn-ghost text-xl">DeployCat</a>
             </div>
             <div class="navbar-end">
               {/* <button class="btn btn-ghost btn-circle">
@@ -111,8 +111,10 @@ export default (props: RouteSectionProps) => {
               </button> */}
             </div>
           </div>
-          <Breadcrumbs />
-          {props.children}
+          <div class="container  mx-auto p-4">
+            <Breadcrumbs />
+            {props.children}
+          </div>
         </div>
         <div class="drawer-side">
           <label
