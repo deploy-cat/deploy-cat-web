@@ -1,13 +1,13 @@
-import { k8sCore, k8sApps, knative } from "~/k8s";
+import { k8sCore, knative } from "~/k8s";
 import { getUser } from "~/lib/server";
 import { RouteDefinition } from "@solidjs/router";
 import { createAsync } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
 import { cache } from "@solidjs/router";
 import { For, Show, createSignal } from "solid-js";
-import ColorHash from "color-hash";
+// import ColorHash from "color-hash";
 
-const colorHash = new ColorHash();
+// const colorHash = new ColorHash();
 
 const getLogs = cache(async (app: string) => {
   "use server";
@@ -127,11 +127,11 @@ export default () => {
                 {(logItem) => (
                   <tr>
                     <th>{logItem.date.toLocaleString()}</th>
-                    <Show when={select() === "all"}>
-                      <td class={`text-[${colorHash.hex(logItem.pod)}]`}>
+                    {/* <Show when={select() === "all"}>
+                      <td class={`text-[${colorHash.hex(logItem.pod ?? "")}]`}>
                         {logItem.pod}
                       </td>
-                    </Show>
+                    </Show> */}
                     <td>{logItem.log}</td>
                   </tr>
                 )}
