@@ -137,10 +137,10 @@ export const Monitoring = ({
 
   return (
     <>
-      <div class="flex flex-wrap flex-row gap-2 my-2">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-2 my-2">
         <A
           href={`/cloud/apps/${params.app}/stats/compute`}
-          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+          class="card grow bg-base-200 h-32 overflow-hidden"
         >
           <Show
             when={compute?.data.result[1]?.values}
@@ -177,7 +177,7 @@ export const Monitoring = ({
         </A>
         <A
           href={`/cloud/apps/${params.app}/stats/memory`}
-          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+          class="card grow bg-base-200 h-32 overflow-hidden"
         >
           <Show
             when={memory?.data.result[1]?.values}
@@ -214,7 +214,7 @@ export const Monitoring = ({
         </A>
         <A
           href={`/cloud/apps/${params.app}/stats/requests`}
-          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+          class="card grow bg-base-200 h-32 overflow-hidden"
         >
           <Show
             when={requests?.data.result[0]?.values}
@@ -252,7 +252,7 @@ export const Monitoring = ({
         </A>
         <A
           href={`/cloud/apps/${params.app}/stats/pods`}
-          class="card grow bg-base-200 w-48 h-32 max-w-lg overflow-hidden"
+          class="card grow bg-base-200 h-32 overflow-hidden"
         >
           <Show
             when={pods?.data.result[0]?.values}

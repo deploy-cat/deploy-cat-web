@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { action, useSubmission } from "@solidjs/router";
+import { action, redirect, useSubmission } from "@solidjs/router";
 import { knative } from "~/k8s";
 import { EnvVarsInput } from "../EnvVarsInput";
 import { ScalingInput } from "../ScalingInput";

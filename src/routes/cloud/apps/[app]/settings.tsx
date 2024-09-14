@@ -11,6 +11,7 @@ import { RouteDefinition } from "@solidjs/router";
 import { createAsync } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
 import { cache } from "@solidjs/router";
+import { Show } from "solid-js";
 
 const getService = cache(async (app: string) => {
   "use server";
@@ -57,83 +58,89 @@ export default () => {
 
   return (
     <>
-      <form action={updateServiceAction} method="post">
-        <div class="flex flex-wrap flex-row gap-2 my-2">
-          <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-            <input type="checkbox" checked />
-            {/* <input type="radio" name="my-accordion-2" checked={true} /> */}
-            <div class="collapse-title text-xl font-medium">General</div>
-            <div class="collapse-content">
-              <label class="form-control w-full">
-                {/* <div class="label">
+      <Show when={service()}>
+        {(service) => (
+          <form action={updateServiceAction} method="post">
+            <div class="grid lg:grid-cols-2 gap-2 my-2">
+              <div class="collapse collapse-arrow bg-base-200">
+                <input type="checkbox" checked />
+                {/* <input type="radio" name="my-accordion-2" checked={true} /> */}
+                <div class="collapse-title text-xl font-medium">General</div>
+                <div class="collapse-content">
+                  <label class="form-control w-full">
+                    {/* <div class="label">
                       <span class="label-text">Name</span>
                     </div> */}
-                <input
-                  type="hidden"
-                  name="name"
-                  required
-                  value={service()?.name}
-                  class="input input-bordered w-full"
-                />
-              </label>
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Image</span>
+                    <input
+                      type="hidden"
+                      name="name"
+                      required
+                      value={service()?.name}
+                      class="input input-bordered w-full"
+                    />
+                  </label>
+                  <label class="form-control w-full">
+                    <div class="label">
+                      <span class="label-text">Image</span>
+                    </div>
+                    <input
+                      type="text"
+                      name="image"
+                      required
+                      value={service()?.image}
+                      class="input input-bordered w-full"
+                    />
+                  </label>
+                  <label class="form-control w-full">
+                    <div class="label">
+                      <span class="label-text">Port</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="port"
+                      required
+                      value={service()?.port}
+                      class="input input-bordered w-full"
+                    />
+                  </label>
                 </div>
-                <input
-                  type="text"
-                  name="image"
-                  required
-                  value={service()?.image}
-                  class="input input-bordered w-full"
-                />
-              </label>
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Port</span>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200">
+                <input type="checkbox" checked />
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <div class="collapse-title text-xl font-medium">
+                  Environment
                 </div>
-                <input
-                  type="number"
-                  name="port"
-                  required
-                  value={service()?.port}
-                  class="input input-bordered w-full"
-                />
-              </label>
+                <div class="collapse-content">
+                  <EnvVarsInput data={service()?.envVars} />
+                </div>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200">
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <input type="checkbox" checked />
+                <div class="collapse-title text-xl font-medium">Resources</div>
+                <div class="collapse-content">
+                  <ResourcesInput data={service()?.resources} />
+                </div>
+              </div>
+              <div class="collapse collapse-arrow bg-base-200">
+                {/* <input type="radio" name="my-accordion-2" /> */}
+                <input type="checkbox" checked />
+                <div class="collapse-title text-xl font-medium">Scaling</div>
+                <div class="collapse-content">
+                  <ScalingInput data={service()?.scaling} />
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-            <input type="checkbox" checked />
-            {/* <input type="radio" name="my-accordion-2" /> */}
-            <div class="collapse-title text-xl font-medium">Environment</div>
-            <div class="collapse-content">
-              <EnvVarsInput data={service()?.envVars} />
-            </div>
-          </div>
-          <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-            {/* <input type="radio" name="my-accordion-2" /> */}
-            <input type="checkbox" checked />
-            <div class="collapse-title text-xl font-medium">Resources</div>
-            <div class="collapse-content">
-              <ResourcesInput data={service()?.resources} />
-            </div>
-          </div>
-          <div class="collapse collapse-arrow bg-base-200 w-96 max-w-lg grow">
-            {/* <input type="radio" name="my-accordion-2" /> */}
-            <input type="checkbox" checked />
-            <div class="collapse-title text-xl font-medium">Scaling</div>
-            <div class="collapse-content">
-              <ScalingInput data={service()?.scaling} />
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-primary">
-          <Show when={updateServiceStatus.pending}>
-            <span class="loading loading-spinner"></span>
-          </Show>
-          Submit Changes
-        </button>
-      </form>
+            <button class="btn btn-primary">
+              <Show when={updateServiceStatus.pending}>
+                <span class="loading loading-spinner"></span>
+              </Show>
+              Submit Changes
+            </button>
+          </form>
+        )}
+      </Show>
     </>
   );
 };

@@ -4,7 +4,7 @@ import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/lib/server";
-import { CheckIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
+import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 
 const getServices = cache(async () => {
   "use server";
@@ -56,7 +56,11 @@ export default () => {
                 {(service) => (
                   <tr>
                     <td class="flex gap-2">
-                      {service.name} <CheckIcon class="w-4 h-4 text-success" />
+                      {service.name}{" "}
+                      <StatusBadge
+                        conditions={service.raw.status.conditions}
+                        disableDropdown={true}
+                      />
                     </td>
                     <td>
                       {new Date(

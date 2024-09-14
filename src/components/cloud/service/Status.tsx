@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 
 export const Status = ({ conditions }) => (
-  <div class="flex flex-wrap gap-2">
+  <div class="flex flex-col gap-2">
     <For each={conditions}>
       {(condition) => (
         <div
@@ -12,7 +12,7 @@ export const Status = ({ conditions }) => (
           }}
         >
           {condition.type}
-          <Show when={condition.reason}>{" "}({condition.reason})</Show>
+          <Show when={condition.reason}> ({condition.reason})</Show>
         </div>
       )}
     </For>

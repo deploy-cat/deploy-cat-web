@@ -5,9 +5,9 @@ import { createAsync } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
 import { cache } from "@solidjs/router";
 import { For, Show, createSignal } from "solid-js";
-import ch from "color-hash";
+// import ColorHash from "color-hash";
 
-const colorHash = new ch.default({ saturation: 0.7, lightness: 0.7 });
+// const colorHash = new ColorHash({ saturation: 0.7, lightness: 0.7 });
 
 const getLogs = cache(async (app: string) => {
   "use server";
@@ -130,9 +130,9 @@ export default () => {
                     <th>{logItem.date.toLocaleString()}</th>
                     <Show when={select() === "all"}>
                       <td
-                        style={{
-                          color: colorHash.hex(logItem.pod ?? ""),
-                        }}
+                      // style={{
+                      //   color: colorHash.hex(logItem.pod ?? ""),
+                      // }}
                       >
                         {logItem.pod}
                       </td>

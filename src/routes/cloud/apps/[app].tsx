@@ -9,6 +9,7 @@ import {
   useSubmission,
   type RouteDefinition,
   type RouteSectionProps,
+  redirect,
 } from "@solidjs/router";
 import { getUser } from "~/lib/server";
 import { Status } from "~/components/cloud/service/Status";
@@ -31,6 +32,7 @@ const deleteServiceFromForm = async (form: FormData) => {
   };
   const user = await getUser();
   await knative.deleteService(service.name, user.username);
+  throw redirect("/cloud/apps");
 };
 
 const deleteServiceAction = action(deleteServiceFromForm, "createService");
