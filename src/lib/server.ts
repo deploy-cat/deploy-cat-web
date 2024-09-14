@@ -18,17 +18,19 @@ function validatePassword(password: unknown) {
 
 async function login(username: string, password: string) {
   const user = await db.user.findUnique({ where: { username } });
-  if (!user || password !== user.password) throw new Error("Invalid login");
+  if (!user) throw new Error("User does not exist");
+  if (password !== user.password) throw new Error("Wrong password");
   return user;
 }
 
 async function register(username: string, password: string) {
   const existingUser = await db.user.findUnique({ where: { username } });
   if (existingUser) throw new Error("User already exists");
+  let existingNamespace;
   try {
-    await k8sCore.readNamespace(username);
-    throw new Error("Namespace already exists!");
+    existingNamespace = await k8sCore.readNamespace(username);
   } catch (e) {}
+  if (existingNamespace) throw new Error("Namespace already exists!");
 
   await k8sCore.createNamespace({
     apiVersion: "v1",
@@ -57,13 +59,9 @@ export const loginFromForm = async (formData: FormData) => {
   const username = String(formData.get("username"));
   const password = String(formData.get("password"));
 
-  try {
-    const user = await login(username, password);
-    const session = await getSession();
-    await session.update((d) => (d.userId = user!.id));
-  } catch (err) {
-    return err as Error;
-  }
+  const user = await login(username, password);
+  const session = await getSession();
+  await session.update((d) => (d.userId = user!.id));
   throw redirect("/cloud");
 };
 
@@ -71,13 +69,9 @@ export const registerFromForm = async (formData: FormData) => {
   const username = String(formData.get("username"));
   const password = String(formData.get("password"));
 
-  try {
-    const user = await register(username, password);
-    const session = await getSession();
-    await session.update((d) => (d.userId = user!.id));
-  } catch (err) {
-    return err as Error;
-  }
+  const user = await register(username, password);
+  const session = await getSession();
+  await session.update((d) => (d.userId = user!.id));
   throw redirect("/cloud");
 };
 

@@ -1,6 +1,7 @@
 import { useNavigate, useSubmission } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { login, register } from "~/lib";
+import { ExclamationCircleIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
 export const LoginForm = () => {
   const loginStatus = useSubmission(login);
@@ -73,7 +74,16 @@ export const LoginForm = () => {
                 Lost Password?
               </a>
             </div> */}
+            <Show when={loginStatus.error}>
+              <div role="alert" class="alert alert-error">
+                <ExclamationCircleIcon class="w-6 h-6" />
+                <span>{loginStatus.error.toString()}</span>
+              </div>
+            </Show>
             <button type="submit" class="btn btn-primary w-full">
+              <Show when={loginStatus.pending}>
+                <span class="loading loading-spinner"></span>
+              </Show>
               Login to your account
             </button>
             <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
@@ -139,7 +149,16 @@ export const LoginForm = () => {
               required
             />
           </div>
+          <Show when={registerStatus.error}>
+            <div role="alert" class="alert alert-error">
+              <ExclamationCircleIcon class="w-6 h-6" />
+              <span>{registerStatus.error.toString()}</span>
+            </div>
+          </Show>
           <button type="submit" class="btn btn-primary w-full">
+            <Show when={registerStatus.pending}>
+              <span class="loading loading-spinner"></span>
+            </Show>
             Create Account
           </button>
           <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
