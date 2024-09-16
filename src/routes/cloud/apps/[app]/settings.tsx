@@ -136,7 +136,7 @@ export default () => {
               <Show when={updateServiceStatus.pending}>
                 <span class="loading loading-spinner"></span>
               </Show>
-              Submit Changes
+              New Revision
             </button>
           </form>
         )}

@@ -6,6 +6,6 @@
   @apply shadow-xl;
 }
 
-.tab.active {
+/* .tab.active {
   @apply tab-active;
-}
+} */

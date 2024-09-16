@@ -106,7 +106,9 @@ export default (props: RouteSectionProps) => {
         <section class="my-2">
           <div role="tablist" class="tabs tabs-lifted">
             <A
-              href={`/cloud/apps/${params.app}/overview`}
+              href={`/cloud/apps/${params.app}`}
+              end={true}
+              activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
@@ -114,6 +116,7 @@ export default (props: RouteSectionProps) => {
             </A>
             <A
               href={`/cloud/apps/${params.app}/stats`}
+              activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
@@ -121,6 +124,7 @@ export default (props: RouteSectionProps) => {
             </A>
             <A
               href={`/cloud/apps/${params.app}/settings`}
+              activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
@@ -128,6 +132,7 @@ export default (props: RouteSectionProps) => {
             </A>
             <A
               href={`/cloud/apps/${params.app}/logs`}
+              activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >

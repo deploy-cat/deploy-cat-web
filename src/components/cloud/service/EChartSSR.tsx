@@ -1,7 +1,5 @@
 import * as echarts from "echarts";
 import { clientOnly } from "@solidjs/start";
-import { Show } from "solid-js";
-import EChart from "./EChart";
 import { isServer } from "solid-js/web";
 
 export function EChartSSR({ option, onlyServer }) {

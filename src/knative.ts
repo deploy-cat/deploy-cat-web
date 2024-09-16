@@ -91,6 +91,21 @@ export class Knative {
     return toKnService(body);
   }
 
+  async getRevisions(name: string, namespace: string) {
+    const { body } = await this.customObjectsApi.listNamespacedCustomObject(
+      "serving.knative.dev",
+      "v1",
+      namespace,
+      "revisions",
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      `serving.knative.dev/configuration=${name}`
+    );
+    return body.items;
+  }
+
   async createService(service: Service, namespace: string) {
     const { body } = await this.customObjectsApi.createNamespacedCustomObject(
       "serving.knative.dev",
@@ -119,6 +134,9 @@ export class Knative {
                   service.scaling.maxRequests &&
                   service.scaling.maxRequests.toString(),
                 "autoscaling.knative.dev/metric": "rps",
+              },
+              labels: {
+                "apps.deploycat.io/source": "manual",
               },
             },
             spec: {
@@ -200,6 +218,9 @@ export class Knative {
                   service.scaling.maxRequests &&
                   service.scaling.maxRequests.toString(),
                 "autoscaling.knative.dev/metric": "rps",
+              },
+              labels: {
+                "apps.deploycat.io/source": "manual",
               },
             },
             spec: {

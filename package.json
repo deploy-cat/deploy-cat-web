@@ -8,12 +8,13 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/color-hash": "^2.0.0",
     "@types/node": "^20.10.1"
   },
   "dependencies": {
     "@deploy-cat/heroicons-solid": "^2.1.1",
     "@kubernetes/client-node": "^0.18.1",
-    "@prisma/client": "^5.10.0",
+    "@prisma/client": "^5.19.1",
     "@solidjs/router": "^0.14.1",
     "@solidjs/start": "^1.0.6",
     "@supabase/supabase-js": "^2.39.3",
@@ -22,6 +23,7 @@
     "color-hash": "^2.0.2",
     "daisyui": "^4.6.0",
     "echarts": "^5.5.1",
+    "humanize-duration": "^3.32.1",
     "mongoose-zod": "^0.1.1",
     "postcss": "^8.4.26",
     "prometheus-query": "^3.4.0",
