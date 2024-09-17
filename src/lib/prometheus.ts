@@ -1,8 +1,9 @@
 import { cache } from "@solidjs/router";
 import { getUser } from "./server";
 import { knative } from "~/k8s";
+import { config } from "./config";
 
-const baseUrl = `${process.env.DEPLOYCAT_PROMETHEUS_URL}/api/v1`;
+const baseUrl = `${config.prometheus.url}/api/v1`;
 
 export const rangeQuery = async ({
   query,

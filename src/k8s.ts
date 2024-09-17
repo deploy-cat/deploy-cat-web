@@ -1,14 +1,15 @@
 import k8s from "@kubernetes/client-node";
 import { Knative } from "./knative";
+import { config } from "./lib/config";
 
 const kc = new k8s.KubeConfig();
-if (typeof process.env.DEPLOYCAT_KUBECONFIG_PATH === "string") {
+if (config.kubeconfig?.path) {
   console.log("load kubeconfig from file");
-  kc.loadFromFile(process.env.DEPLOYCAT_KUBECONFIG_PATH);
-} else if (typeof process.env.DEPLOYCAT_KUBECONFIG === "string") {
+  kc.loadFromFile(config.kubeconfig.path);
+} else if (config.kubeconfig?.base64) {
   console.log("load kubeconfig from env (base64 encoded)");
-  kc.loadFromString(atob(process.env.DEPLOYCAT_KUBECONFIG));
-} else if (process.env.DEPLOYCAT_KUBECONFIG_FROM_CLUSTER) {
+  kc.loadFromString(atob(config.kubeconfig?.base64));
+} else if (config.kubeconfig?.fromcluster) {
   console.log("load kubeconfig from cluster");
   kc.loadFromCluster();
 } else {
