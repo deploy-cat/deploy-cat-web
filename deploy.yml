@@ -1,81 +1,76 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
 metadata:
-  name: deploy-cat-web
-  namespace: deploy-cat
+  name: deploycat-db
+  namespace: deploycat-system
 spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: deploy-cat-web
-  template:
-    metadata:
-      labels:
-        app: deploy-cat-web
-    spec:
-      containers:
-      - name: deploy-cat-web
-        image: 0xadb/deploy-cat-web:v0.1.0
-        imagePullPolicy: Always
-        resources:
-          limits:
-            memory: "50Mi"
-            cpu: "50m"
-        ports:
-        - containerPort: 8080
-        env:
-        - name: GITHUB_ID
-          valueFrom:
-            secretKeyRef:
-              name: deploy-cat-web-secrets
-              key: GITHUB_ID
-        - name: GITHUB_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: deploy-cat-web-secrets
-              key: GITHUB_SECRET
-        - name: AUTH_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: deploy-cat-web-secrets
-              key: AUTH_SECRET
+  instances: 3
+  bootstrap:
+    initdb:
+      database: deploycat
+      owner: deploycat
+      # secret:
+      #   name: app-db
+  storage:
+    storageClass: longhorn
+    size: 1Gi
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: deploycat
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: deploycat-binding
+roleRef: # points to my Role
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: deploycat # name of role
+subjects: # points to my ServiceAccount
+  - kind: ServiceAccount
+    name: app # service account to bind to
+    namespace: deploycat-system # ns of service account
 
 ---
 apiVersion: v1
-kind: Service
+kind: ServiceAccount
 metadata:
-  name: deploy-cat-web
-  namespace: deploy-cat
-spec:
-  selector:
-    app: deploy-cat-web
-  ports:
-  - port: 8080
-    targetPort: 8080
+  name: app
+  namespace: deploycat-system
 
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: serving.knative.dev/v1
+kind: Service
 metadata:
-  name: deploy-cat-web
-  namespace: deploy-cat
-  labels:
-    name: deploy-cat-web
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-issuer
+  name: app
+  namespace: deploycat-system
 spec:
-  tls:
-  - secretName: "deploy-cat-cert"
-    hosts:
-    - deploy.cat
-  rules:
-  - host: deploy.cat
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/"
-        backend:
-          service:
-            name: deploy-cat-web
-            port: 
-              number: 8080
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/min-scale: "1"
+    spec:
+      serviceAccountName: app
+      containers:
+        - name: app
+          image: ghcr.io/deploy-cat/deploy-cat-web:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DEPLOYCAT_KUBECONFIG_FROM_CLUSTER
+              value: "true"
+            - name: DEPLOYCAT_PROMETHEUS_URL
+              value: "http://prometheus-47978363-kube-p-prometheus.deploycat-system.svc.cluster.local:9090"
+            - name: DEPLOYCAT_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: deploycat-db-app
+                  key: uri
