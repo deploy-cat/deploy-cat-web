@@ -7,6 +7,7 @@ import {
   InboxIcon,
   QuestionMarkCircleIcon,
   Squares2X2Icon,
+  CircleStackIcon,
 } from "@deploy-cat/heroicons-solid/24/solid/esm";
 import { Breadcrumbs } from "~/components/Breadcrumbs";
 
@@ -125,14 +126,20 @@ export default (props: RouteSectionProps) => {
           <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
             <li>
               <A href="/cloud" end={true}>
-                <ChartPieIcon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <ChartPieIcon class="w-6 h-6" />
                 <span class="ml-3">Dashboard</span>
               </A>
             </li>
             <li>
               <A href="/cloud/apps">
-                <Squares2X2Icon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                <Squares2X2Icon class="w-6 h-6" />
                 <span class="flex-1 ml-3 whitespace-nowrap">Apps</span>
+              </A>
+            </li>
+            <li>
+              <A href="/cloud/cnpg">
+                <CircleStackIcon class="w-6 h-6" />
+                <span class="flex-1 ml-3 whitespace-nowrap">Postgres</span>
               </A>
             </li>
           </ul>
