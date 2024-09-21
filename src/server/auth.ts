@@ -1,9 +1,9 @@
-import { type SolidAuthConfig } from '@solid-mediakit/auth'
-import GitHub from '@auth/core/providers/github'
+import { auth, type SolidAuthConfig } from "@solid-mediakit/auth";
+import GitHub from "@auth/core/providers/github";
 
-declare module '@auth/core/types' {
+declare module "@auth/core/types" {
   export interface Session {
-    user?: DefaultSession['user']
+    user?: DefaultSession["user"];
   }
 }
 
@@ -15,5 +15,5 @@ export const authOptions: SolidAuthConfig = {
     }),
   ],
   debug: false,
-  basePath: import.meta.env.VITE_AUTH_PATH,
-}
+  basePath: "/api/auth",
+};
