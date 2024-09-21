@@ -27,3 +27,6 @@ Thumbs.db
 
 .env
 secrets.yml
+*dev.db
+.direnv
+docker-compose.yml
