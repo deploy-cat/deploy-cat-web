@@ -2,8 +2,10 @@ import { useNavigate, useSubmission } from "@solidjs/router";
 import { createSignal, Show } from "solid-js";
 import { login, register } from "~/lib";
 import { ExclamationCircleIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
+import { signIn, createSession } from "@solid-mediakit/auth/client";
 
 export const LoginForm = () => {
+  const session = createSession();
   const loginStatus = useSubmission(login);
   const registerStatus = useSubmission(register);
 
@@ -173,7 +175,10 @@ export const LoginForm = () => {
         </form>
       </Show>
       <div class="divider">OR</div>
-      <button class="btn btn-secondary w-full" onClick={() => signIn()}>
+      <button
+        class="btn btn-secondary w-full"
+        onClick={() => signIn("github", { redirectTo: "/cloud" })}
+      >
         Sign in with GitHub
       </button>
     </div>
