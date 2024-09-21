@@ -117,7 +117,6 @@ export class Knative {
         kind: "Service",
         metadata: {
           name: service.name,
-          namespace: namespace,
           labels: {
             "app.kubernetes.io/managed-by": "deploycat",
           },
