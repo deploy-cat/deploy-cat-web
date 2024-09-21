@@ -3,8 +3,6 @@ import { getUser } from "./server";
 import { knative } from "~/k8s";
 import { config } from "./config";
 
-const baseUrl = `${config.prometheus.url}/api/v1`;
-
 export const rangeQuery = async ({
   query,
   start,
@@ -16,6 +14,7 @@ export const rangeQuery = async ({
   end: Date;
   step: number;
 }) => {
+  const baseUrl = `${config.prometheus.url}/api/v1`;
   const url = new URL(`${baseUrl}/query_range`);
   url.search = new URLSearchParams({
     query,
