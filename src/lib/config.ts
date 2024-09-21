@@ -1,8 +1,9 @@
 import { z } from "zod";
 import fs from "fs/promises";
 import merge from "deepmerge";
+import { isServer } from "solid-js/web";
 
-const configPath = `${process.cwd()}/config.json`;
+const configPath = process.cwd?.() && `${process.cwd()}/config.json`;
 
 const schemaConfig = z.object({
   database: z.object({
@@ -20,7 +21,7 @@ const schemaConfig = z.object({
   }),
 });
 
-const parseEnv = ({ prefix = "", envs = process.env } = {}) => {
+const parseEnv = ({ prefix = "", envs = process.env ?? {} } = {}) => {
   const parsed = {} as any;
   Object.entries(envs).forEach(([key, value]) => {
     const seq = (obj: any, arr: Array<string>, v: string | undefined) => {
@@ -36,10 +37,11 @@ const parseEnv = ({ prefix = "", envs = process.env } = {}) => {
     const keyArr = key.split("_").map((e) => e.toLocaleLowerCase());
     seq(parsed, keyArr, value);
   });
-  return prefix !== "" ? parsed?.[prefix] : parsed;
+  return prefix !== "" ? parsed?.[prefix] ?? {} : parsed;
 };
 
 const parseJSON = async () => {
+  if (!configPath) return {};
   try {
     return JSON.parse((await fs.readFile(configPath)).toString());
   } catch (e) {
@@ -54,4 +56,4 @@ const getConfig = async () => {
   return config;
 };
 
-export const config = schemaConfig.parse(await getConfig());
+export const config = isServer ? schemaConfig.parse(await getConfig()) : {};
