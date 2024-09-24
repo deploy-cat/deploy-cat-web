@@ -1,5 +1,5 @@
 import SideBar from "~/components/cloud/SideBar";
-import { A, useLocation } from "@solidjs/router";
+import { A, createAsync, useLocation } from "@solidjs/router";
 import type { RouteSectionProps } from "@solidjs/router";
 import {
   ChartPieIcon,
@@ -9,33 +9,16 @@ import {
   Squares2X2Icon,
 } from "@deploy-cat/heroicons-solid/24/solid/esm";
 import { Breadcrumbs } from "~/components/Breadcrumbs";
+import { getUser } from "~/lib";
+import { UserBadge } from "~/components/UserBadge";
+import { Show } from "solid-js";
 
-// const getUser = cache(async () => {
-//   "use server";
-//   const navigate = useNavigate();
-//   // const supabase = useSupabase();
-//   const {
-//     data: { user },
-//   } = await supabase.auth.getUser();
-//   console.log(user);
-//   if (!user) {
-//     navigate("/login");
-//     return;
-//   }
-//   return user;
-// }, "user");
-
-// export const route = {
-//   load: () => getUser(),
-// };
+export const route = {
+  load: () => getUser(),
+};
 
 export default (props: RouteSectionProps) => {
-  // const user = createAsync(getUser);
-  // const supabase = useSupabase();
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-  // console.log(user);
+  const user = createAsync(() => getUser());
 
   return (
     <main>
@@ -122,20 +105,25 @@ export default (props: RouteSectionProps) => {
             aria-label="close sidebar"
             class="drawer-overlay"
           ></label>
-          <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-            <li>
-              <A href="/cloud" end={true}>
-                <ChartPieIcon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span class="ml-3">Dashboard</span>
-              </A>
-            </li>
-            <li>
-              <A href="/cloud/apps">
-                <Squares2X2Icon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
-                <span class="flex-1 ml-3 whitespace-nowrap">Apps</span>
-              </A>
-            </li>
-          </ul>
+          <div class="menu flex flex-col justify-between p-4 w-80 min-h-full bg-base-200 text-base-content">
+            <ul>
+              <li>
+                <A href="/cloud" end={true}>
+                  <ChartPieIcon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                  <span class="ml-3">Dashboard</span>
+                </A>
+              </li>
+              <li>
+                <A href="/cloud/apps">
+                  <Squares2X2Icon class="flex-shrink-0 w-6 h-6 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" />
+                  <span class="flex-1 ml-3 whitespace-nowrap">Apps</span>
+                </A>
+              </li>
+            </ul>
+            <Show when={user()}> {}
+              <UserBadge user={user()} />
+            </Show>
+          </div>
         </div>
       </div>
     </main>

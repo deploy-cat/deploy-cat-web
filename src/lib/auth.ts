@@ -46,6 +46,8 @@ const schemaUser = z.object({
   image: z.string().optional(),
 });
 
+export interface User extends z.infer<typeof schemaUser> {}
+
 export const getUser = async () => {
   "use server";
   const request = getWebRequest();
