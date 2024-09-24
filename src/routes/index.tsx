@@ -1,19 +1,30 @@
-import { A } from "@solidjs/router";
-import { Show } from "solid-js";
 import LoginForm from "~/components/LoginForm";
+import { getUser } from "~/lib/auth";
+import {
+  createAsync,
+  redirect,
+  cache,
+  type RouteDefinition,
+} from "@solidjs/router";
 
-// export const routeData = () =>
-//   createServerData$(
-//     async (_, event) => {
-//       const session = await getSession(event.request, authOptions);
-//       throw redirect("/login");
-//       return session;
-//     },
-//     { key: () => ["auth_user"] },
-//   );
+const getData = cache(async () => {
+  "use server";
+  let user;
+  try {
+    user = await getUser();
+  } catch (e) {}
+  console.log(user);
+  if (user) throw redirect("/cloud");
+}, "login-redirect");
+
+export const route = {
+  load: () => {
+    getData();
+  },
+} satisfies RouteDefinition;
 
 export default () => {
-  // const session = useRouteData<typeof useSession>();
+  const data = createAsync(() => getData());
 
   return (
     <main class="m-0">

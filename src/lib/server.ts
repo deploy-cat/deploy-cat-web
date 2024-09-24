@@ -2,7 +2,7 @@
 import { redirect } from "@solidjs/router";
 import { useSession } from "vinxi/http";
 import { db } from "./db";
-import { k8sCore } from "~/k8s";
+import { k8sCore } from "~/lib/k8s";
 
 function validateUsername(username: unknown) {
   if (typeof username !== "string" || username.length < 3) {

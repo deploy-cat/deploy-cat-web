@@ -1,5 +1,5 @@
 import { createResource, createSignal, For, Show } from "solid-js";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import {
   cache,
   createAsync,
@@ -11,18 +11,18 @@ import {
   type RouteSectionProps,
   redirect,
 } from "@solidjs/router";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import { Status } from "~/components/cloud/service/Status";
 import { Monitoring } from "~/components/cloud/service/Monitoring";
 import { rangeQuery } from "~/lib/prometheus";
 import { CheckBadgeIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
-import type { Service as KnativeService } from "~/knative";
+import type { Service as KnativeService } from "~/lib/knative";
 
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getService(app, user.username);
+  return await knative.getService(app, user.name);
 }, "service");
 
 const deleteServiceFromForm = async (form: FormData) => {
@@ -31,7 +31,7 @@ const deleteServiceFromForm = async (form: FormData) => {
     name: form.get("name") as string,
   };
   const user = await getUser();
-  await knative.deleteService(service.name, user.username);
+  await knative.deleteService(service.name, user.name);
   throw redirect("/cloud/apps");
 };
 

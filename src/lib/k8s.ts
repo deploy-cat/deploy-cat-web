@@ -1,6 +1,6 @@
 import k8s from "@kubernetes/client-node";
 import { Knative } from "./knative";
-import { config } from "./lib/config";
+import { config } from "./config";
 
 const kc = new k8s.KubeConfig();
 if (config.kubeconfig?.path) {
