@@ -1,3 +1,5 @@
+"use server";
+
 import { auth, getSession, type SolidAuthConfig } from "@solid-mediakit/auth";
 import GitHub from "@auth/core/providers/github";
 import { config } from "~/lib/config";
@@ -34,13 +36,15 @@ if (config?.auth.github) {
   providers.push(github);
 }
 
-export const authOptions: SolidAuthConfig = {
+const authOptions: SolidAuthConfig = {
   adapter: PrismaAdapter(db),
   providers,
   debug: false,
   trustHost: true,
   basePath: "/api/auth",
 };
+
+export const getAuthOptions = () => authOptions;
 
 const schemaUser = z.object({
   name: z.string(),

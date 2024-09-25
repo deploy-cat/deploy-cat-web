@@ -1,3 +1,5 @@
+"use server";
+
 import { cache } from "@solidjs/router";
 import { getUser } from "./server";
 import { knative } from "~/lib/k8s";
