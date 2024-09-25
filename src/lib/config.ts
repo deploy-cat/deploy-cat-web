@@ -2,7 +2,6 @@ import { z } from "zod";
 import fs from "fs/promises";
 import merge from "deepmerge";
 import { isServer } from "solid-js/web";
-import x from "../../dist/public/assets/user-bdc93350";
 
 const configPath = process.cwd?.() && `${process.cwd()}/config.json`;
 
@@ -14,7 +13,10 @@ const schemaConfig = z.object({
     .object({
       base64: z.string().optional(),
       path: z.string().optional(),
-      fromcluster: z.boolean().optional(),
+      fromcluster: z
+        .enum(["true", "false"])
+        .transform((value) => value === "true")
+        .optional(),
     })
     .optional(),
   prometheus: z.object({
@@ -29,7 +31,9 @@ const schemaConfig = z.object({
       .optional(),
     credentials: z
       .object({
-        enable: z.boolean(),
+        enable: z
+          .enum(["true", "false"])
+          .transform((value) => value === "true"),
       })
       .optional(),
   }),
