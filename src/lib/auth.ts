@@ -5,6 +5,8 @@ import type { Provider } from "@auth/core/providers";
 import { getWebRequest } from "vinxi/http";
 import { redirect } from "@solidjs/router";
 import { z } from "zod";
+import { db } from "./db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
 declare module "@auth/core/types" {
   export interface Session {
@@ -14,10 +16,10 @@ declare module "@auth/core/types" {
 
 const providers = [] as Array<Provider>;
 
-if (config?.oauth.github) {
+if (config?.auth.github) {
   const github = GitHub({
-    clientId: config.oauth.github.id,
-    clientSecret: config.oauth.github.secret,
+    clientId: config.auth.github.id,
+    clientSecret: config.auth.github.secret,
   });
 
   github.profile = (profile) => {
@@ -33,6 +35,7 @@ if (config?.oauth.github) {
 }
 
 export const authOptions: SolidAuthConfig = {
+  adapter: PrismaAdapter(db),
   providers,
   debug: false,
   trustHost: true,

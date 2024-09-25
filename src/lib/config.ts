@@ -20,11 +20,16 @@ const schemaConfig = z.object({
   prometheus: z.object({
     url: z.string(),
   }),
-  oauth: z.object({
+  auth: z.object({
     github: z
       .object({
         id: z.string(),
         secret: z.string(),
+      })
+      .optional(),
+    credentials: z
+      .object({
+        enable: z.boolean(),
       })
       .optional(),
   }),
