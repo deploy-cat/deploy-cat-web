@@ -5,7 +5,7 @@ WORKDIR /app
 
 ADD . .
 
-RUN npm ci\
+RUN npm ci --legacy-peer-deps\
     && npx prisma generate\
     && npm run build
 
