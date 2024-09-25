@@ -2,7 +2,7 @@ import { Component, Show } from "solid-js";
 import { useSupabase } from "solid-supabase";
 import { useNavigate } from "@solidjs/router";
 import { createAsync, cache } from "@solidjs/router";
-import { k8sCore } from "~/k8s";
+import { k8sCore } from "~/lib/k8s";
 import { User } from "@supabase/supabase-js";
 
 // const Protected = (Comp: IProtectedComponent) => {

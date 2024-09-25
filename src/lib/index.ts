@@ -1,5 +1,6 @@
 import { action, cache } from "@solidjs/router";
-import { getUser as gU, loginFromForm, registerFromForm } from "./server";
+import { loginFromForm, registerFromForm } from "./server";
+import { getUser as gU } from "./auth";
 
 export const getUser = cache(gU, "user");
 // export const loginOrRegister = action(lOR, "loginOrRegister");

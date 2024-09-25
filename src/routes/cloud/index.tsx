@@ -1,11 +1,14 @@
-import { knative } from "~/k8s";
-import { getUser } from "~/lib/server";
+import { knative } from "~/lib/k8s";
+import { getUser } from "~/lib/auth";
 import { A, cache, createAsync, type RouteDefinition } from "@solidjs/router";
+import { getSession } from "@solid-mediakit/auth";
+import { getWebRequest } from "vinxi/http";
+import { authOptions } from "~/lib/auth";
 
 const getServices = cache(async () => {
   "use server";
-  const user = await getUser();
-  return await knative.getServices(user.username);
+  const user = await getUser()
+  return await knative.getServices(user.name);
 }, "services2");
 
 export const route = {

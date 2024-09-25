@@ -2,6 +2,7 @@ import { z } from "zod";
 import fs from "fs/promises";
 import merge from "deepmerge";
 import { isServer } from "solid-js/web";
+import x from "../../dist/public/assets/user-bdc93350";
 
 const configPath = process.cwd?.() && `${process.cwd()}/config.json`;
 
@@ -19,24 +20,39 @@ const schemaConfig = z.object({
   prometheus: z.object({
     url: z.string(),
   }),
+  auth: z.object({
+    github: z
+      .object({
+        id: z.string(),
+        secret: z.string(),
+      })
+      .optional(),
+    credentials: z
+      .object({
+        enable: z.boolean(),
+      })
+      .optional(),
+  }),
 });
 
 const parseEnv = ({ prefix = "", envs = process.env ?? {} } = {}) => {
   const parsed = {} as any;
-  Object.entries(envs).forEach(([key, value]) => {
-    const seq = (obj: any, arr: Array<string>, v: string | undefined) => {
-      if (typeof obj === "string") return;
-      if (arr.length > 1) {
-        const [pos] = arr.splice(0, 1);
-        if (!obj[pos]) obj[pos] = {};
-        seq(obj[pos], arr, v);
-      } else {
-        obj[arr[0]] = v;
-      }
-    };
-    const keyArr = key.split("_").map((e) => e.toLocaleLowerCase());
-    seq(parsed, keyArr, value);
-  });
+  Object.entries(envs)
+    .filter(([key]) => key?.startsWith(prefix.toUpperCase()))
+    .forEach(([key, value]) => {
+      const seq = (obj: any, arr: Array<string>, v: string | undefined) => {
+        if (typeof obj === "string") return;
+        if (arr.length > 1) {
+          const [pos] = arr.splice(0, 1);
+          if (!obj[pos]) obj[pos] = {};
+          seq(obj[pos], arr, v);
+        } else {
+          obj[arr[0]] = v;
+        }
+      };
+      const keyArr = key.split("_").map((e) => e.toLocaleLowerCase());
+      seq(parsed, keyArr, value);
+    });
   return prefix !== "" ? parsed?.[prefix] ?? {} : parsed;
 };
 
@@ -56,4 +72,4 @@ const getConfig = async () => {
   return config;
 };
 
-export const config = isServer ? schemaConfig.parse(await getConfig()) : {};
+export const config = isServer ? schemaConfig.parse(await getConfig()) : null;

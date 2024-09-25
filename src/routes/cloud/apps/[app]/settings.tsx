@@ -4,9 +4,9 @@ import { ResourcesInput } from "~/components/ResourcesInput";
 import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { action, useSubmission } from "@solidjs/router";
-import { toNumber } from "~/knative";
-import { knative } from "~/k8s";
-import { getUser } from "~/lib/server";
+import { toNumber } from "~/lib/knative";
+import { knative } from "~/lib/k8s";
+import { getUser } from "~/lib/auth";
 import { RouteDefinition } from "@solidjs/router";
 import { createAsync } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
@@ -16,7 +16,7 @@ import { Show } from "solid-js";
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getService(app, user.username);
+  return await knative.getService(app, user.name);
 }, "service");
 
 const updateServiceFromForm = async (form: FormData) => {
@@ -39,7 +39,7 @@ const updateServiceFromForm = async (form: FormData) => {
   await knative.updateService(
     form.get("name") as string,
     service,
-    user.username
+    user.name
   );
 };
 

@@ -1,6 +1,6 @@
 import { getSession } from "@solid-auth/base";
 import { createServerData$ } from "solid-start/server";
-import { authOptions } from "~/server/auth";
+import { authOptions } from "~/lib/auth";
 
 export const useSession = () =>
   createServerData$(

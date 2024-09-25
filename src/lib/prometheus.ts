@@ -1,6 +1,6 @@
 import { cache } from "@solidjs/router";
 import { getUser } from "./server";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import { config } from "./config";
 
 export const rangeQuery = async ({
@@ -45,9 +45,9 @@ export const getCompute = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
@@ -60,9 +60,9 @@ export const getMemory = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
@@ -75,9 +75,9 @@ export const getRequests = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
@@ -90,9 +90,9 @@ export const getPods = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
