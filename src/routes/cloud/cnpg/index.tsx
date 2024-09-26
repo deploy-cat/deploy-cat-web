@@ -3,19 +3,18 @@ import { knative } from "~/k8s";
 import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
-import { cnpg } from "~/k8s";
+import { cnpg } from "~/lib/k8s";
 
 const getDBs = cache(async () => {
   "use server";
   const user = await getUser();
   try {
-    return await cnpg.getDatabases(user.username);
+    return await cnpg.getDatabases(user.name);
   } catch (e) {
-    console.error(e);
+    return [];
   }
-  return {};
 }, "databases");
 
 export const route = {
@@ -75,9 +74,7 @@ export default () => {
                         ).lastTransitionTime
                       ).toLocaleString()}
                     </td>
-                    <td class="hidden md:block">
-                        {db.spec.imageName}
-                    </td>
+                    <td class="hidden md:block">{db.spec.imageName}</td>
                     <td>
                       <A
                         href={`/cloud/cnpg/${db.metadata.name}`}

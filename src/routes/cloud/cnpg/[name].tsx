@@ -10,15 +10,15 @@ import {
   type RouteSectionProps,
   redirect,
 } from "@solidjs/router";
-import { getUser } from "~/lib/server";
-import { cnpg } from "~/k8s";
+import { getUser } from "~/lib/auth";
+import { cnpg } from "~/lib/k8s";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 import { CircleStackIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
 const getDB = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await cnpg.getDatabase(app, user.username);
+  return await cnpg.getDatabase(app, user.name);
 }, "db");
 
 const deleteDBFromForm = async (form: FormData) => {
@@ -27,7 +27,7 @@ const deleteDBFromForm = async (form: FormData) => {
     name: form.get("name") as string,
   };
   const user = await getUser();
-  await cnpg.deleteDatabase(service.name, user.username);
+  await cnpg.deleteDatabase(service.name, user.name);
   throw redirect("/cloud/cnpg");
 };
 
