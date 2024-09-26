@@ -1,7 +1,6 @@
 import k8s from "@kubernetes/client-node";
 import { Knative } from "./knative";
-import { CNPG } from "./lib/cnpg";
-import { config } from "./lib/config";
+import { config } from "./config";
 
 const kc = new k8s.KubeConfig();
 if (config.kubeconfig?.path) {
@@ -23,4 +22,3 @@ export const k8sApiExtensions = kc.makeApiClient(k8s.ApiextensionsV1Api);
 export const k8sCustomObjects = kc.makeApiClient(k8s.CustomObjectsApi);
 
 export const knative = new Knative(kc);
-export const cnpg = new CNPG(kc);

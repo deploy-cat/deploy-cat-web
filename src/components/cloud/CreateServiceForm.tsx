@@ -1,12 +1,12 @@
 import { Show } from "solid-js";
 import { action, redirect, useSubmission } from "@solidjs/router";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import { EnvVarsInput } from "../EnvVarsInput";
 import { ScalingInput } from "../ScalingInput";
 import { ResourcesInput } from "../ResourcesInput";
-import { getUser } from "~/lib/server";
-import type { Service } from "~/knative";
-import { toNumber } from "~/knative";
+import { getUser } from "~/lib/auth";
+import type { Service } from "~/lib/knative";
+import { toNumber } from "~/lib/knative";
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
@@ -25,7 +25,7 @@ const createServiceFromForm = async (form: FormData) => {
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   } as Service;
   const user = await getUser();
-  await knative.createService(service, user.username);
+  await knative.createService(service, user.name);
 };
 
 const createServiceAction = action(createServiceFromForm, "createService");

@@ -1,5 +1,5 @@
-import { k8sCore, knative } from "~/k8s";
-import { getUser } from "~/lib/server";
+import { k8sCore, knative } from "~/lib/k8s";
+import { getUser } from "~/lib/auth";
 import { RouteDefinition } from "@solidjs/router";
 import { createAsync } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
@@ -12,11 +12,11 @@ import { For, Show, createSignal } from "solid-js";
 const getLogs = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
   try {
     const pods = (
       await k8sCore.listNamespacedPod(
-        user.username,
+        user.name,
         undefined,
         undefined,
         undefined,
@@ -28,7 +28,7 @@ const getLogs = cache(async (app: string) => {
       pods.map(async (pod) => {
         const podLogs = await k8sCore.readNamespacedPodLog(
           pod.metadata.name,
-          user.username,
+          user.name,
           "user-container",
           false,
           false,
@@ -137,7 +137,9 @@ export default () => {
                         {logItem.pod}
                       </td>
                     </Show>
-                    <td>{logItem.log}</td>
+                    <td>
+                      <pre>{logItem.log}</pre>
+                    </td>
                   </tr>
                 )}
               </For>

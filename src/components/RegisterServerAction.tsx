@@ -1,6 +1,6 @@
 import { createServerAction$, redirect } from "solid-start/server";
-import { k8sCustomObjects } from "~/k8s";
-import { knative } from "~/k8s";
+import { k8sCustomObjects } from "~/lib/k8s";
+import { knative } from "~/lib/k8s";
 import { JSXElement, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 

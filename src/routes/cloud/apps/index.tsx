@@ -1,15 +1,15 @@
 import { For } from "solid-js";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 
 const getServices = cache(async () => {
   "use server";
   const user = await getUser();
-  return await knative.getServices(user.username);
+  return await knative.getServices(user.name);
 }, "services");
 
 export const route = {

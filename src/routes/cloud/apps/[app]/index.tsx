@@ -1,11 +1,11 @@
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import {
   cache,
   createAsync,
   useParams,
   type RouteDefinition,
 } from "@solidjs/router";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import humanizeDuration from "humanize-duration";
 import { For } from "solid-js";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
@@ -13,13 +13,13 @@ import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getService(app, user.username);
+  return await knative.getService(app, user.name);
 }, "service");
 
 const getRevisions = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getRevisions(app, user.username);
+  return await knative.getRevisions(app, user.name);
 }, "revisions");
 
 export const route = {
@@ -102,7 +102,7 @@ export default () => {
                         </div>
                       </td>
                       <td class="hidden md:table-cell">
-                        {service()?.raw.status.traffic.find(
+                        {service()?.raw.status?.traffic?.find(
                           (e) => e.revisionName === revision.metadata.name
                         )?.percent ?? 0}
                         %

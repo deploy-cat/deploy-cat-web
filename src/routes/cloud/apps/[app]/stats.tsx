@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import {
   cache,
   createAsync,
@@ -8,23 +8,23 @@ import {
   type RouteDefinition,
   type RouteSectionProps,
 } from "@solidjs/router";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import { Monitoring } from "~/components/cloud/service/Monitoring";
 import { rangeQuery } from "~/lib/prometheus";
 
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getService(app, user.username);
+  return await knative.getService(app, user.name);
 }, "service");
 
 const getMonitoringOverview = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   const end = new Date();

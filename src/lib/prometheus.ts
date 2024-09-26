@@ -1,9 +1,9 @@
-import { cache } from "@solidjs/router";
-import { getUser } from "./server";
-import { knative } from "~/k8s";
-import { config } from "./config";
+"use server";
 
-const baseUrl = `${config.prometheus.url}/api/v1`;
+import { cache } from "@solidjs/router";
+import { getUser } from "./auth";
+import { knative } from "~/lib/k8s";
+import { config } from "./config";
 
 export const rangeQuery = async ({
   query,
@@ -16,6 +16,7 @@ export const rangeQuery = async ({
   end: Date;
   step: number;
 }) => {
+  const baseUrl = `${config.prometheus.url}/api/v1`;
   const url = new URL(`${baseUrl}/query_range`);
   url.search = new URLSearchParams({
     query,
@@ -46,11 +47,10 @@ export const getCompute = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
-
   return await queryLastCoupleMinutes({
     query: `sum(rate(container_cpu_usage_seconds_total{namespace="${namespace}", pod=~"${revision}.*", container != "POD", container != ""}[1m])) by (container)`,
     minutes: 120,
@@ -61,9 +61,9 @@ export const getMemory = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
@@ -76,9 +76,9 @@ export const getRequests = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({
@@ -91,9 +91,9 @@ export const getPods = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   return await queryLastCoupleMinutes({

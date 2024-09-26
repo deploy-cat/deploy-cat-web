@@ -1,6 +1,6 @@
 import { clientOnly } from "@solidjs/start";
-import { knative } from "~/k8s";
-import { getUser } from "~/lib/server";
+import { knative } from "~/lib/k8s";
+import { getUser } from "~/lib/auth";
 import { rangeQuery } from "~/lib/prometheus";
 import { cache, createAsync } from "@solidjs/router";
 import { graphic } from "echarts";
@@ -11,9 +11,9 @@ const getData = cache(async (app: string) => {
   "use server";
 
   const user = await getUser();
-  const service = await knative.getService(app, user.username);
+  const service = await knative.getService(app, user.name);
 
-  const namespace = user.username;
+  const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
 
   const end = new Date();

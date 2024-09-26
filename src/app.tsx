@@ -2,6 +2,7 @@
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
+import { SessionProvider } from "@solid-mediakit/auth/client";
 import "./app.css";
 
 export default function App() {
@@ -9,7 +10,9 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <Suspense>{props.children}</Suspense>
+          <Suspense>
+            <SessionProvider>{props.children}</SessionProvider>
+          </Suspense>
         </>
       )}
     >

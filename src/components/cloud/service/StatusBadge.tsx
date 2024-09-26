@@ -6,7 +6,9 @@ import {
 import { Status } from "./Status";
 
 export const StatusBadge = ({ conditions, disableDropdown = false }) => {
-  const status = !conditions.some((condition) => condition.status === "False");
+  const status =
+    conditions.find((condition) => condition.type === "Ready").status ===
+    "True";
 
   const renderedStatus = status ? (
     <CheckCircleIcon tabindex="0" role="button" class=" w-6 h-6 text-success" />

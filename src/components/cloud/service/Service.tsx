@@ -1,10 +1,10 @@
 import { For, Show } from "solid-js";
 import { Status } from "./Status";
-import { knative } from "~/k8s";
+import { knative } from "~/lib/k8s";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
-import { getUser } from "~/lib/server";
+import { getUser } from "~/lib/auth";
 import { action, useSubmission, A } from "@solidjs/router";
-import type { Service as KnativeService } from "~/knative";
+import type { Service as KnativeService } from "~/lib/knative";
 
 const deleteServiceFromForm = async (form: FormData) => {
   "use server";
@@ -12,7 +12,7 @@ const deleteServiceFromForm = async (form: FormData) => {
     name: form.get("name") as string,
   };
   const user = await getUser();
-  await knative.deleteService(service.name, user.username);
+  await knative.deleteService(service.name, user.name);
 };
 
 const deleteServiceAction = action(deleteServiceFromForm, "createService");
