@@ -1,7 +1,7 @@
 import { For } from "solid-js";
 import { knative } from "~/k8s";
 import { Service } from "~/components/cloud/service/Service";
-import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
+import { CreateDatabaseForm } from "../../../components/cloud/CreateDatabaseForm";
 import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/lib/auth";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
@@ -36,7 +36,7 @@ export default () => {
             onClick={() =>
               (
                 document.getElementById(
-                  "create-service-modal"
+                  "create-database-modal"
                 ) as HTMLDialogElement
               ).showModal()
             }
@@ -96,7 +96,7 @@ export default () => {
           {(service) => <Service service={service} />}
         </For>
       </section> */}
-      <CreateServiceForm />
+      <CreateDatabaseForm />
     </>
   );
 };

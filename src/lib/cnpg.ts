@@ -1,14 +1,17 @@
 import k8s from "@kubernetes/client-node";
+import { z } from "zod";
 
-export type Database = {
-  name: string;
-  init: {
-    database: string;
-    owner: string;
-  };
-  instances?: number;
-  size: number;
-};
+export const schemaDatabse = z.object({
+  name: z.string(),
+  init: z.object({
+    database: z.string(),
+    owner: z.string(),
+  }),
+  instances: z.number().optional(),
+  size: z.number(),
+});
+
+export interface Database extends z.infer<typeof schemaDatabse> {}
 
 export class CNPG {
   kubeconfig: k8s.KubeConfig;
@@ -65,7 +68,7 @@ export class CNPG {
           },
           storage: {
             storageClass: "longhorn",
-            size: db.size,
+            size: `${db.size}Gi`,
           },
         },
       }
