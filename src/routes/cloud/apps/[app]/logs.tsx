@@ -137,7 +137,9 @@ export default () => {
                         {logItem.pod}
                       </td>
                     </Show>
-                    <td>{logItem.log}</td>
+                    <td>
+                      <pre>{logItem.log}</pre>
+                    </td>
                   </tr>
                 )}
               </For>

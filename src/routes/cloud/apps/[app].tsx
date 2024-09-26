@@ -22,7 +22,11 @@ import type { Service as KnativeService } from "~/lib/knative";
 const getService = cache(async (app: string) => {
   "use server";
   const user = await getUser();
-  return await knative.getService(app, user.name);
+  try {
+    return await knative.getService(app, user.name);
+  } catch (e) {
+    throw redirect("/cloud/apps");
+  }
 }, "service");
 
 const deleteServiceFromForm = async (form: FormData) => {

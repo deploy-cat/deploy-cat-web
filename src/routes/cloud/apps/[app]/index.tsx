@@ -102,7 +102,7 @@ export default () => {
                         </div>
                       </td>
                       <td class="hidden md:table-cell">
-                        {service()?.raw.status.traffic.find(
+                        {service()?.raw.status?.traffic?.find(
                           (e) => e.revisionName === revision.metadata.name
                         )?.percent ?? 0}
                         %

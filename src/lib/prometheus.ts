@@ -1,7 +1,7 @@
 "use server";
 
 import { cache } from "@solidjs/router";
-import { getUser } from "./server";
+import { getUser } from "./auth";
 import { knative } from "~/lib/k8s";
 import { config } from "./config";
 
@@ -51,7 +51,6 @@ export const getCompute = cache(async (app: string) => {
 
   const namespace = user.name;
   const revision = service.raw.status.latestReadyRevisionName;
-
   return await queryLastCoupleMinutes({
     query: `sum(rate(container_cpu_usage_seconds_total{namespace="${namespace}", pod=~"${revision}.*", container != "POD", container != ""}[1m])) by (container)`,
     minutes: 120,
