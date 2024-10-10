@@ -10,6 +10,7 @@ import { z } from "zod";
 import { db } from "./db";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { k8sCore } from "./k8s";
+import { schemaUser } from "./types";
 
 declare module "@auth/core/types" {
   export interface Session {
@@ -75,15 +76,6 @@ const authOptions: SolidAuthConfig = {
 };
 
 export const getAuthOptions = () => authOptions;
-
-const schemaUser = z.object({
-  name: z.string(),
-  id: z.string().optional(),
-  email: z.string().optional(),
-  image: z.string().optional(),
-});
-
-export interface User extends z.infer<typeof schemaUser> {}
 
 export const getUser = async () => {
   "use server";

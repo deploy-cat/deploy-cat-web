@@ -1,21 +1,11 @@
-import { Show, For } from "solid-js";
-import {
-  action,
-  cache,
-  createAsync,
-  redirect,
-  useSubmission,
-} from "@solidjs/router";
-import { knative } from "~/lib/k8s";
-import { EnvVarsInput } from "../EnvVarsInput";
-import { ScalingInput } from "../ScalingInput";
-import { ResourcesInput } from "../ResourcesInput";
-import { getUser } from "~/lib/auth";
-import type { Service } from "~/lib/knative";
-import { toNumber } from "~/lib/knative";
-import { k8sCore } from "~/lib/k8s";
+import { Show } from "solid-js";
+import { action, redirect, useSubmission } from "@solidjs/router";
+import { knative } from "~/k8s";
+import { getUser } from "~/lib/server";
+import type { Service } from "~/knative";
+import { toNumber } from "~/knative";
 
-const createServiceFromForm = async (form: FormData) => {
+const createDBFromForm = async (form: FormData) => {
   "use server";
   const service = {
     name: form.get("name") as string,
@@ -32,18 +22,18 @@ const createServiceFromForm = async (form: FormData) => {
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   } as Service;
   const user = await getUser();
-  await knative.createService(service, user.name);
+  await knative.createService(service, user.username);
 };
 
-const createServiceAction = action(createServiceFromForm, "createService");
+const createDBAction = action(createDBFromForm, "createDB");
 
 export const CreateServiceForm = () => {
-  const createServiceStatus = useSubmission(createServiceAction);
+  const createDBStatus = useSubmission(createDBAction);
 
   return (
-    <dialog id="create-service-modal" class="modal">
+    <dialog id="create-db-modal" class="modal">
       <div class="modal-box">
-        <form action={createServiceAction} method="post">
+        <form action={createDBAction} method="post">
           <h3 class="font-bold text-lg">Deploy new App</h3>
           <div class="collapse collapse-arrow bg-base-200 my-2">
             <input type="radio" name="my-accordion-2" checked={true} />
@@ -75,7 +65,7 @@ export const CreateServiceForm = () => {
               </label>
               <label class="form-control w-full">
                 <div class="label">
-                  <span class="label-text">Port</span>
+                  <span class="label-text">Size</span>
                 </div>
                 <input
                   type="number"
@@ -87,38 +77,6 @@ export const CreateServiceForm = () => {
               </label>
             </div>
           </div>
-          <div class="collapse collapse-arrow bg-base-200 my-2">
-            <input type="radio" name="my-accordion-2" />
-            <div class="collapse-title text-xl font-medium">Environment</div>
-            <div class="collapse-content">
-              <EnvVarsInput />
-              {/* <label class="label cursor-pointer">
-                <span class="label-text">connectDatabase</span>
-                <input
-                  type="checkbox"
-                  // checked={memory() === undefined}
-                  // onChange={(event) =>
-                  //   setMemory(event.target.checked ? undefined : 250)
-                  // }
-                  class="checkbox"
-                />
-              </label> */}
-            </div>
-          </div>
-          <div class="collapse collapse-arrow bg-base-200 my-2">
-            <input type="radio" name="my-accordion-2" />
-            <div class="collapse-title text-xl font-medium">Resources</div>
-            <div class="collapse-content">
-              <ResourcesInput />
-            </div>
-          </div>
-          <div class="collapse collapse-arrow bg-base-200 my-2">
-            <input type="radio" name="my-accordion-2" />
-            <div class="collapse-title text-xl font-medium">Scaling</div>
-            <div class="collapse-content">
-              <ScalingInput />
-            </div>
-          </div>
           <button type="submit" id="submitForm" class="hidden" />
         </form>
         <div class="modal-action">
@@ -128,7 +86,7 @@ export const CreateServiceForm = () => {
             </button>
           </form>
           <label for="submitForm" tabindex={0} class="btn btn-primary">
-            <Show when={createServiceStatus.pending}>
+            <Show when={createDBStatus.pending}>
               <span class="loading loading-spinner"></span>
             </Show>
             Deploy

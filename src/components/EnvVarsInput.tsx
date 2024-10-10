@@ -1,5 +1,31 @@
 import { For, type Signal, createSignal } from "solid-js";
 import { TrashIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
+import { cache, createAsync } from "@solidjs/router";
+import { getUser } from "~/lib/auth";
+import { k8sCore } from "~/lib/k8s";
+import { CircleStackIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
+
+const getDatabseSecrets = cache(async () => {
+  "use server";
+  try {
+    const user = await getUser();
+    const secrets = await k8sCore.listNamespacedSecret(
+      user.name,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      "cnpg.io/cluster"
+    );
+    return secrets.body.items.map(({ data, metadata: { name, labels } }) => ({
+      name,
+      labels,
+      values: Object.keys(data),
+    }));
+  } catch (e) {
+    console.error(e);
+  }
+}, "db-secrets");
 
 const parseClipboard = (text: string) =>
   text
@@ -14,6 +40,8 @@ const parseClipboard = (text: string) =>
     });
 
 export const EnvVarsInput = ({ data }) => {
+  const dbSecrets = createAsync(() => getDatabseSecrets());
+
   const [env, setEnv] = createSignal(
     (data &&
       Object.entries(data).map(([key, value]) => ({
@@ -106,6 +134,46 @@ export const EnvVarsInput = ({ data }) => {
           >
             Paste Env File
           </div> */}
+        </div>
+        <div class="join">
+          <select class="select select-bordered join-item">
+            <For each={dbSecrets()}>
+              {(secret) => (
+                <option value={secret.name}>
+                  {secret.labels["cnpg.io/cluster"]}
+                </option>
+              )}
+            </For>
+          </select>
+          <button class="btn join-item btn-info btn-outline">
+            Connect Postgres
+          </button>
+        </div>
+        <CircleStackIcon class=" w-5 h-5" />
+        <div class="join my-1">
+          <input
+            type="text"
+            class="input input-bordered join-item w-32"
+            placeholder="Env"
+            required
+          />
+          <select class="select select-bordered join-item">
+            <For each={dbSecrets()}>
+              {(secret) => (
+                <option value={secret.name}>
+                  {secret.labels["cnpg.io/cluster"]}
+                </option>
+              )}
+            </For>
+          </select>
+          <select class="select select-bordered join-item w-full">
+            <For each={dbSecrets()?.[0].values}>
+              {(value) => <option value={value}>{value}</option>}
+            </For>
+          </select>
+          <div class="btn btn-error join-item" tabindex={0}>
+            <TrashIcon class="flex-shrink-0 w-5 h-5" />
+          </div>
         </div>
       </div>
     </>
