@@ -1,5 +1,11 @@
-import { Show } from "solid-js";
-import { action, redirect, useSubmission } from "@solidjs/router";
+import { Show, For } from "solid-js";
+import {
+  action,
+  cache,
+  createAsync,
+  redirect,
+  useSubmission,
+} from "@solidjs/router";
 import { knative } from "~/lib/k8s";
 import { EnvVarsInput } from "../EnvVarsInput";
 import { ScalingInput } from "../ScalingInput";
@@ -7,6 +13,7 @@ import { ResourcesInput } from "../ResourcesInput";
 import { getUser } from "~/lib/auth";
 import type { Service } from "~/lib/knative";
 import { toNumber } from "~/lib/knative";
+import { k8sCore } from "~/lib/k8s";
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
@@ -85,6 +92,17 @@ export const CreateServiceForm = () => {
             <div class="collapse-title text-xl font-medium">Environment</div>
             <div class="collapse-content">
               <EnvVarsInput />
+              {/* <label class="label cursor-pointer">
+                <span class="label-text">connectDatabase</span>
+                <input
+                  type="checkbox"
+                  // checked={memory() === undefined}
+                  // onChange={(event) =>
+                  //   setMemory(event.target.checked ? undefined : 250)
+                  // }
+                  class="checkbox"
+                />
+              </label> */}
             </div>
           </div>
           <div class="collapse collapse-arrow bg-base-200 my-2">

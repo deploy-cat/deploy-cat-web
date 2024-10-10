@@ -15,11 +15,11 @@ import { cnpg } from "~/lib/k8s";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 import { CircleStackIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 
-const getDB = cache(async (app: string) => {
+const getDB = cache(async (name: string) => {
   "use server";
   const user = await getUser();
-  return await cnpg.getDatabase(app, user.name);
-}, "db");
+  return await cnpg.getDatabase(name, user.name);
+}, "database");
 
 const deleteDBFromForm = async (form: FormData) => {
   "use server";
@@ -103,7 +103,7 @@ export default (props: RouteSectionProps) => {
         <section class="my-2">
           <div role="tablist" class="tabs tabs-lifted">
             <A
-              href={`/cloud/apps/${params.app}`}
+              href={`/cloud/cnpg/${params.name}`}
               end={true}
               activeClass="tab-active"
               role="tab"
@@ -111,30 +111,30 @@ export default (props: RouteSectionProps) => {
             >
               Overview
             </A>
-            <A
+            {/* <A
               href={`/cloud/apps/${params.app}/stats`}
               activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
               Insights
-            </A>
+            </A> */}
             <A
-              href={`/cloud/apps/${params.app}/settings`}
+              href={`/cloud/cnpg/${params.name}/settings`}
               activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
               Settings
             </A>
-            <A
+            {/* <A
               href={`/cloud/apps/${params.app}/logs`}
               activeClass="tab-active"
               role="tab"
               class="tab [--tab-border-color:teal]"
             >
               Logs
-            </A>
+            </A> */}
           </div>
 
           {props.children}

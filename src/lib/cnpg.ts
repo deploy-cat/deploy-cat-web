@@ -1,17 +1,5 @@
 import k8s from "@kubernetes/client-node";
-import { z } from "zod";
-
-export const schemaDatabse = z.object({
-  name: z.string(),
-  init: z.object({
-    database: z.string(),
-    owner: z.string(),
-  }),
-  instances: z.number().optional(),
-  size: z.number(),
-});
-
-export interface Database extends z.infer<typeof schemaDatabse> {}
+import type { Database } from "./types";
 
 export class CNPG {
   kubeconfig: k8s.KubeConfig;
@@ -66,6 +54,26 @@ export class CNPG {
               owner: db.init.owner,
             },
           },
+          storage: {
+            storageClass: "longhorn",
+            size: `${db.size}Gi`,
+          },
+        },
+      }
+    );
+    return body;
+  }
+
+  async updateDatabase(name: string, db: Database, namespace: string) {
+    const { body } = await this.customObjectsApi.patchNamespacedCustomObject(
+      "postgresql.cnpg.io",
+      "v1",
+      namespace,
+      "clusters",
+      name,
+      {
+        spec: {
+          instances: db.instances ?? 3,
           storage: {
             storageClass: "longhorn",
             size: `${db.size}Gi`,

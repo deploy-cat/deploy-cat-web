@@ -1,11 +1,12 @@
 import { Show } from "solid-js";
 import { action, redirect, useSubmission } from "@solidjs/router";
 import { getUser } from "~/lib/auth";
-import { schemaDatabse } from "../../lib/cnpg";
 import { cnpg } from "~/lib/k8s";
+import { schemaDatabse } from "~/lib/types";
 
 const createDatabaseFromForm = async (form: FormData) => {
   "use server";
+  console.log(form);
   try {
     const database = await schemaDatabse.parseAsync({
       name: form.get("name"),
@@ -66,7 +67,7 @@ export const CreateDatabaseForm = () => {
                   <span class="label-text">Size in GiB</span>
                 </div>
                 <input
-                  type="text"
+                  type="number"
                   name="size"
                   required
                   placeholder="1"
