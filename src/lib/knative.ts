@@ -139,6 +139,13 @@ export class Knative {
               },
             },
             spec: {
+              imagePullSecrets:
+                (service.pullSecret && [
+                  {
+                    name: service.pullSecret,
+                  },
+                ]) ||
+                null,
               containerConcurrency: 0,
               containers: [
                 {

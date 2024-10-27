@@ -4,15 +4,63 @@ import { knative } from "~/lib/k8s";
 import { EnvVarsInput } from "../EnvVarsInput";
 import { ScalingInput } from "../ScalingInput";
 import { ResourcesInput } from "../ResourcesInput";
-import { getUser } from "~/lib/auth";
+import { getUser, getAccount } from "~/lib/auth";
 import type { Service } from "~/lib/knative";
 import { toNumber } from "~/lib/knative";
+import { SourceInput } from "./service/SourceInput";
+import { k8sCore } from "~/lib/k8s";
+
+const ensureGithubPullSecret = async (namespace: string) => {
+  "use server";
+  const secretName = "pull-secret-ghcr";
+  try {
+    await k8sCore.readNamespacedSecret(secretName, namespace);
+  } catch (e) {
+    const user = await getUser();
+    const accout = await getAccount();
+
+    const username = user.name;
+    const token = accout.access_token;
+    const email = user.email;
+
+    await k8sCore.createNamespacedSecret(namespace, {
+      apiVersion: "v1",
+      kind: "Secret",
+      metadata: {
+        name: secretName,
+        labels: {
+          "app.kubernetes.io/managed-by": "deploycat",
+        },
+      },
+      type: "kubernetes.io/dockerconfigjson",
+      data: {
+        ".dockerconfigjson": Buffer.from(
+          JSON.stringify({
+            auths: {
+              "ghcr.io": {
+                username: username,
+                password: token,
+                email: email,
+                auth: Buffer.from(`${username}:${token}`).toString("base64"),
+              },
+            },
+          })
+        ).toString("base64"),
+      },
+    });
+  }
+};
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
   const service = {
     name: form.get("name") as string,
+    source: form.get("source") as string,
     image: form.get("image") as string,
+    ghPackage: form.get("ghPackage") as string,
+    ghPackageTag: form.get("ghPackageTag") as string,
+    ghPackageName: form.get("ghPackageName") as string,
+    ghPackageOwner: form.get("ghPackageOwner") as string,
     port: Number(form.get("port")) as number,
     resources: {
       cpuLimit: toNumber(form.get("cpuLimit")),
@@ -25,7 +73,20 @@ const createServiceFromForm = async (form: FormData) => {
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   } as Service;
   const user = await getUser();
-  await knative.createService(service, user.name);
+  if (service?.source === "ghcr") {
+    try {
+      await ensureGithubPullSecret(user.name);
+    } catch (e) {
+      console.error(e);
+    }
+    service.image = `ghcr.io/${service.ghPackageOwner}/${service.ghPackageName}:${service.ghPackageTag}`;
+    service.pullSecret = "pull-secret-ghcr";
+  }
+  try {
+    await knative.createService(service, user.name);
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const createServiceAction = action(createServiceFromForm, "createService");
@@ -54,18 +115,8 @@ export const CreateServiceForm = () => {
                   class="input input-bordered w-full"
                 />
               </label>
-              <label class="form-control w-full">
-                <div class="label">
-                  <span class="label-text">Image</span>
-                </div>
-                <input
-                  type="text"
-                  name="image"
-                  required
-                  placeholder="traefik/whoami"
-                  class="input input-bordered w-full"
-                />
-              </label>
+              <SourceInput />
+
               <label class="form-control w-full">
                 <div class="label">
                   <span class="label-text">Port</span>
