@@ -9,6 +9,9 @@ import type { Service } from "~/lib/knative";
 import { toNumber } from "~/lib/knative";
 import { SourceInput } from "./service/SourceInput";
 import { k8sCore } from "~/lib/k8s";
+import { Octokit } from "@octokit/rest";
+import * as crypto from "crypto";
+import { config } from "~/lib/config";
 
 const ensureGithubPullSecret = async (namespace: string) => {
   "use server";
@@ -51,6 +54,25 @@ const ensureGithubPullSecret = async (namespace: string) => {
   }
 };
 
+const createGithubWebhook = async (namespace: string, service) => {
+  "use server";
+  const account = await getAccount();
+  const ok = new Octokit({
+    auth: account.access_token,
+  });
+  ok.repos.createWebhook({
+    owner: service.ghPackageOwner,
+    repo: service.ghPackageRepo,
+    config: {
+      url: `${config?.publicurl}/api/webhooks/github/apps/${namespace}/${service.name}/package`,
+      content_type: "json",
+      secret: service.webhookSecret,
+    },
+    events: ["package"],
+    active: true,
+  });
+};
+
 const createServiceFromForm = async (form: FormData) => {
   "use server";
   const service = {
@@ -61,6 +83,7 @@ const createServiceFromForm = async (form: FormData) => {
     ghPackageTag: form.get("ghPackageTag") as string,
     ghPackageName: form.get("ghPackageName") as string,
     ghPackageOwner: form.get("ghPackageOwner") as string,
+    ghPackageRepo: form.get("ghPackageRepo") as string,
     port: Number(form.get("port")) as number,
     resources: {
       cpuLimit: toNumber(form.get("cpuLimit")),
@@ -72,10 +95,13 @@ const createServiceFromForm = async (form: FormData) => {
     },
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   } as Service;
+
   const user = await getUser();
   if (service?.source === "ghcr") {
     try {
+      service.webhookSecret = crypto.randomBytes(16).toString("hex");
       await ensureGithubPullSecret(user.name);
+      await createGithubWebhook(user.name, service);
     } catch (e) {
       console.error(e);
     }
@@ -83,7 +109,7 @@ const createServiceFromForm = async (form: FormData) => {
     service.pullSecret = "pull-secret-ghcr";
   }
   try {
-    await knative.createService(service, user.name);
+    await knative.createService(service, user.name, service.source);
   } catch (e) {
     console.error(e);
   }

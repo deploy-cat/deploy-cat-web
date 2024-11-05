@@ -1,4 +1,4 @@
-import { createSignal, Show, For } from "solid-js";
+import { createSignal, Show, For, createEffect, Accessor } from "solid-js";
 import { cache, createAsync } from "@solidjs/router";
 import { getAccount } from "~/lib/auth";
 import { Octokit } from "@octokit/rest";
@@ -14,7 +14,7 @@ const getPackages = cache(async () => {
       await ok.packages.listPackagesForAuthenticatedUser({
         package_type: "container",
       });
-    const packagesWithVersions = Promise.all(
+    const packagesWithVersions = await Promise.all(
       packages.map(async (pkg) => {
         const { data: versions } =
           await ok.packages.getAllPackageVersionsForPackageOwnedByAuthenticatedUser(
@@ -48,7 +48,14 @@ const sourceOptions = [
 export const SourceInput = ({ data }) => {
   const [source, setSource] = createSignal("manual" as Source);
   const packages = createAsync(() => getPackages());
-  const [pkg, setPkg] = createSignal(null as null | number);
+  type Package = typeof packages extends Accessor<(infer U)[] | undefined>
+    ? U
+    : never;
+  const [pkg, setPkg] = createSignal(undefined as Package | undefined);
+
+  createEffect(() => {
+    setPkg(packages()?.[0]);
+  });
 
   return (
     <>
@@ -87,39 +94,55 @@ export const SourceInput = ({ data }) => {
         </label>
       </Show>
       <Show when={source() === "ghcr"}>
-        <label class="form-control w-full">
-          <div class="label">
-            <span class="label-text">Container Image</span>
-          </div>
-          <select
-            name="ghPackage"
-            class="select select-bordered w-full"
-            onchange={(e) => setPkg(Number(e.target.value))}
-          >
-            <For each={packages()}>
-              {(p) => (
-                <option value={p.id}>
-                  {p.name} ({p.repository?.full_name})
-                </option>
-              )}
-            </For>
-          </select>
-          <input
-            type="hidden"
-            name="ghPackageName"
-            value={packages()?.find((p) => p.id === pkg())?.name}
-          />
-          <input
-            type="hidden"
-            name="ghPackageOwner"
-            value={packages()?.find((p) => p.id === pkg())?.owner?.login}
-          />
-          <select name="ghPackageTag" class="select select-bordered w-full">
-            <For each={packages()?.find((p) => p.id === pkg())?.tags}>
-              {(t) => <option value={t}>{t}</option>}
-            </For>
-          </select>
-        </label>
+        <Show when={packages()}>
+          {(pkgs) => (
+            <>
+              <label class="form-control w-full">
+                <div class="label">
+                  <span class="label-text">Container Image</span>
+                </div>
+                <div class="join">
+                  <select
+                    name="ghPackage"
+                    class="select select-bordered w-full join-item"
+                    onInput={(e) =>
+                      setPkg(
+                        pkgs().find((p) => p.id === Number(e.target.value))
+                      )
+                    }
+                  >
+                    <For each={pkgs()}>
+                      {(p) => (
+                        <option value={p.id}>
+                          {p.name} ({p.repository?.full_name})
+                        </option>
+                      )}
+                    </For>
+                  </select>
+                  <select
+                    name="ghPackageTag"
+                    class="select select-bordered join-item"
+                  >
+                    <For each={pkg()?.tags}>
+                      {(t) => <option value={t}>{t}</option>}
+                    </For>
+                  </select>
+                </div>
+              </label>
+              <input type="hidden" name="ghPackageName" value={pkg()?.name} />
+              <input
+                type="hidden"
+                name="ghPackageOwner"
+                value={pkg()?.owner?.login}
+              />
+              <input
+                type="hidden"
+                name="ghPackageRepo"
+                value={pkg()?.repository?.name}
+              />
+            </>
+          )}
+        </Show>
       </Show>
     </>
   );
