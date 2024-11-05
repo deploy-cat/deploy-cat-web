@@ -108,8 +108,9 @@ export default () => {
                         %
                       </td>
                       <td class="hidden sm:table-cell">
-                        {revision.metadata.labels["apps.deploycat.io/source"] ??
-                          "unknown"}
+                        {revision.metadata.annotations[
+                          "apps.deploycat.io/source"
+                        ] ?? "unknown"}
                       </td>
                     </tr>
                   )}
