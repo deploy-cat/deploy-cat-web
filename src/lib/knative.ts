@@ -128,6 +128,7 @@ export class Knative {
           annotations: {
             "apps.deploycat.io/webhook-secret": service.webhookSecret,
             "apps.deploycat.io/source": source,
+            ...(service.annotations ?? {}),
           },
         },
         spec: {

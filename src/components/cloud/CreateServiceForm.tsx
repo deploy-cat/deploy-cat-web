@@ -60,7 +60,7 @@ const createGithubWebhook = async (namespace: string, service) => {
   const ok = new Octokit({
     auth: account.access_token,
   });
-  ok.repos.createWebhook({
+  return await ok.repos.createWebhook({
     owner: service.ghPackageOwner,
     repo: service.ghPackageRepo,
     config: {
@@ -101,7 +101,11 @@ const createServiceFromForm = async (form: FormData) => {
     try {
       service.webhookSecret = crypto.randomBytes(16).toString("hex");
       await ensureGithubPullSecret(user.name);
-      await createGithubWebhook(user.name, service);
+      const { data: hook } = await createGithubWebhook(user.name, service);
+      service.annotations = {
+        "apps.deploycat.io/gh-webhook-id": hook.id.toString(),
+        "apps.deploycat.io/gh-repo": service.ghPackageRepo,
+      };
     } catch (e) {
       console.error(e);
     }
