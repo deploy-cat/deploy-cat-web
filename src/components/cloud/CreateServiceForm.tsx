@@ -61,12 +61,12 @@ const createGithubWebhook = async (namespace: string, service) => {
     auth: account.access_token,
   });
   return await ok.repos.createWebhook({
-    owner: service.ghPackageOwner,
-    repo: service.ghPackageRepo,
+    owner: service.annotations["apps.deploycat.io/gh-package-owner"],
+    repo: service.annotations["apps.deploycat.io/gh-package-repo"],
     config: {
       url: `${config?.publicurl}/api/webhooks/github/apps/${namespace}/${service.name}/package`,
       content_type: "json",
-      secret: service.webhookSecret,
+      secret: service.annotations["apps.deploycat.io/gh-webhook-secret"],
     },
     events: ["package"],
     active: true,
@@ -75,15 +75,10 @@ const createGithubWebhook = async (namespace: string, service) => {
 
 const createServiceFromForm = async (form: FormData) => {
   "use server";
+  const source = form.get("source") as string;
   const service = {
     name: form.get("name") as string,
-    source: form.get("source") as string,
     image: form.get("image") as string,
-    ghPackage: form.get("ghPackage") as string,
-    ghPackageTag: form.get("ghPackageTag") as string,
-    ghPackageName: form.get("ghPackageName") as string,
-    ghPackageOwner: form.get("ghPackageOwner") as string,
-    ghPackageRepo: form.get("ghPackageRepo") as string,
     port: Number(form.get("port")) as number,
     resources: {
       cpuLimit: toNumber(form.get("cpuLimit")),
@@ -94,26 +89,33 @@ const createServiceFromForm = async (form: FormData) => {
       maxRequests: toNumber(form.get("maxRequests")),
     },
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
+    annotations: {
+      "apps.deploycat.io/gh-package": form.get("ghPackage"),
+      "apps.deploycat.io/gh-package-repo": form.get("ghPackageRepo"),
+      "apps.deploycat.io/gh-package-name": form.get("ghPackageName"),
+      "apps.deploycat.io/gh-package-owner": form.get("ghPackageOwner"),
+      "apps.deploycat.io/gh-package-tag": form.get("ghPackageTag"),
+    },
   } as Service;
 
   const user = await getUser();
-  if (service?.source === "ghcr") {
+  if (source === "ghcr") {
     try {
-      service.webhookSecret = crypto.randomBytes(16).toString("hex");
       await ensureGithubPullSecret(user.name);
+      service.annotations["apps.deploycat.io/gh-webhook-secret"] = crypto
+        .randomBytes(16)
+        .toString("hex");
       const { data: hook } = await createGithubWebhook(user.name, service);
-      service.annotations = {
-        "apps.deploycat.io/gh-webhook-id": hook.id.toString(),
-        "apps.deploycat.io/gh-repo": service.ghPackageRepo,
-      };
+      service.annotations["apps.deploycat.io/gh-webhook-id"] =
+        hook.id.toString();
     } catch (e) {
       console.error(e);
     }
-    service.image = `ghcr.io/${service.ghPackageOwner}/${service.ghPackageName}:${service.ghPackageTag}`;
+    service.image = `ghcr.io/${service.annotations["apps.deploycat.io/gh-package-owner"]}/${service.annotations["apps.deploycat.io/gh-package-name"]}:${service.annotations["apps.deploycat.io/gh-package-tag"]}`;
     service.pullSecret = "pull-secret-ghcr";
   }
   try {
-    await knative.createService(service, user.name, service.source);
+    await knative.createService(service, user.name, source);
   } catch (e) {
     console.error(e);
   }

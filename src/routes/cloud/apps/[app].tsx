@@ -49,7 +49,7 @@ const deleteServiceFromForm = async (form: FormData) => {
     await ok.repos.deleteWebhook({
       owner: user.name,
       repo: currentService.raw.metadata.annotations[
-        "apps.deploycat.io/gh-repo"
+        "apps.deploycat.io/gh-package-repo"
       ],
       hook_id: Number(
         currentService.raw.metadata.annotations[

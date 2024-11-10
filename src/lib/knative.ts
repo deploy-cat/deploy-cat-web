@@ -3,6 +3,7 @@ import k8s from "@kubernetes/client-node";
 export type Service = {
   name: string;
   image: string;
+  pullSecret?: string;
   port: number;
   resources: {
     cpuLimit: number;
@@ -14,6 +15,7 @@ export type Service = {
   };
   envVars: { [key: string]: string };
   raw?: any;
+  annotations: { [key: string]: string };
 };
 
 export const toNumber = (value: any) => value && Number(value);
@@ -55,6 +57,7 @@ const toKnService = (service: any) =>
         value,
       ]) ?? []
     ),
+    annotations: service.metadata.annotations,
     raw: service,
   } as Service);
 
@@ -126,9 +129,8 @@ export class Knative {
             "app.kubernetes.io/managed-by": "deploycat",
           },
           annotations: {
-            "apps.deploycat.io/webhook-secret": service.webhookSecret,
             "apps.deploycat.io/source": source,
-            ...(service.annotations ?? {}),
+            ...service.annotations,
           },
         },
         spec: {

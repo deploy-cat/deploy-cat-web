@@ -8,7 +8,7 @@ export async function POST({ params, request }: APIEvent) {
 
   const currentService = await knative.getService(app, namespace);
   const secret =
-    currentService.raw.metadata.annotations["apps.deploycat.io/webhook-secret"];
+    currentService.raw.metadata.annotations["apps.deploycat.io/gh-webhook-secret"];
 
   const wh = new Webhooks({ secret });
   const signature = request.headers.get("x-hub-signature-256");
