@@ -5,6 +5,7 @@ import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/lib/auth";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
+import humanizeDuration from "humanize-duration";
 
 const getServices = cache(async () => {
   "use server";
@@ -63,11 +64,24 @@ export default () => {
                       />
                     </td>
                     <td>
-                      {new Date(
-                        service.raw.status.conditions.find(
-                          (condition) => condition.type === "RoutesReady"
-                        ).lastTransitionTime
-                      ).toLocaleString()}
+                      <div
+                        class="tooltip"
+                        data-tip={new Date(
+                          service.raw.status.conditions.find(
+                            (condition) => condition.type === "Ready"
+                          )?.lastTransitionTime
+                        ).toLocaleString()}
+                      >
+                        {humanizeDuration(
+                          new Date(
+                            service.raw.status.conditions.find(
+                              (condition) => condition.type === "Ready"
+                            )?.lastTransitionTime
+                          ).getTime() - Date.now(),
+                          { round: true, largest: 1 }
+                        )}{" "}
+                        ago
+                      </div>
                     </td>
                     <td class="hidden md:block">
                       <a class="link" href={service.raw.status.url}>

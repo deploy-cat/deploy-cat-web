@@ -14,7 +14,8 @@ import { schemaUser } from "./types";
 
 declare module "@auth/core/types" {
   export interface Session {
-    user?: DefaultSession["user"];
+    user: DefaultSession["user"];
+    account: Account;
   }
 }
 
@@ -24,6 +25,11 @@ if (config?.auth.github) {
   const github = GitHub({
     clientId: config.auth.github.id,
     clientSecret: config.auth.github.secret,
+    authorization: {
+      params: {
+        scope: "read:user user:email repo read:packages",
+      },
+    },
   });
 
   github.profile = (profile) => {
@@ -56,7 +62,7 @@ const authOptions: SolidAuthConfig = {
         !(await db.user.findUnique({ where: { id: user.user.id } })) &&
         existingNamespace
       )
-        return false;
+        return true;
 
       if (existingNamespace) return true;
 
@@ -72,6 +78,14 @@ const authOptions: SolidAuthConfig = {
       });
       return true;
     },
+    session: async ({ session, user }) => {
+      const account = await db.account.findMany({
+        where: { userId: user.id },
+      });
+      if (!account) throw new Error("account not found");
+      session.account = account[0];
+      return session;
+    },
   },
 };
 
@@ -86,4 +100,12 @@ export const getUser = async () => {
   } catch (e) {
     throw redirect("/");
   }
+};
+
+export const getAccount = async () => {
+  "use server";
+  const request = getWebRequest();
+  const session = await getSession(request, authOptions);
+  if (!session) throw redirect("");
+  return session.account;
 };

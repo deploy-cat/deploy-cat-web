@@ -18,6 +18,8 @@ import { rangeQuery } from "~/lib/prometheus";
 import { CheckBadgeIcon } from "@deploy-cat/heroicons-solid/24/solid/esm";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 import type { Service as KnativeService } from "~/lib/knative";
+import { getAccount } from "~/lib/auth";
+import { Octokit } from "@octokit/rest";
 
 const getService = cache(async (app: string) => {
   "use server";
@@ -35,6 +37,27 @@ const deleteServiceFromForm = async (form: FormData) => {
     name: form.get("name") as string,
   };
   const user = await getUser();
+  const currentService = await knative.getService(service.name, user.name);
+  if (
+    currentService.raw.metadata?.annotations["apps.deploycat.io/source"] ===
+    "ghcr"
+  ) {
+    const account = await getAccount();
+    const ok = new Octokit({
+      auth: account.access_token,
+    });
+    await ok.repos.deleteWebhook({
+      owner: user.name,
+      repo: currentService.raw.metadata.annotations[
+        "apps.deploycat.io/gh-package-repo"
+      ],
+      hook_id: Number(
+        currentService.raw.metadata.annotations[
+          "apps.deploycat.io/gh-webhook-id"
+        ]
+      ),
+    });
+  }
   await knative.deleteService(service.name, user.name);
   throw redirect("/cloud/apps");
 };

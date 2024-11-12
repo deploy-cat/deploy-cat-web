@@ -3,6 +3,7 @@ import k8s from "@kubernetes/client-node";
 export type Service = {
   name: string;
   image: string;
+  pullSecret?: string;
   port: number;
   resources: {
     cpuLimit: number;
@@ -14,6 +15,7 @@ export type Service = {
   };
   envVars: { [key: string]: string };
   raw?: any;
+  annotations: { [key: string]: string };
 };
 
 export const toNumber = (value: any) => value && Number(value);
@@ -25,13 +27,13 @@ const toKnService = (service: any) =>
     port: service.spec.template.spec.containers[0].ports[0].containerPort,
     resources: {
       cpuLimit: toNumber(
-        service.spec.template.spec.containers[0].resources.limits?.cpu.replace(
+        service.spec.template.spec.containers[0].resources.limits?.cpu?.replace(
           "m",
           ""
         )
       ),
       memoryLimit: toNumber(
-        service.spec.template.spec.containers[0].resources.limits?.memory.replace(
+        service.spec.template.spec.containers[0].resources.limits?.memory?.replace(
           "Mi",
           ""
         )
@@ -55,6 +57,7 @@ const toKnService = (service: any) =>
         value,
       ]) ?? []
     ),
+    annotations: service.metadata.annotations,
     raw: service,
   } as Service);
 
@@ -106,7 +109,12 @@ export class Knative {
     return body.items;
   }
 
-  async createService(service: Service, namespace: string) {
+  async createService(
+    service: Service,
+    namespace: string,
+    source: string = "manual",
+    revisionSource: string = "manual"
+  ) {
     const { body } = await this.customObjectsApi.createNamespacedCustomObject(
       "serving.knative.dev",
       "v1",
@@ -119,6 +127,10 @@ export class Knative {
           name: service.name,
           labels: {
             "app.kubernetes.io/managed-by": "deploycat",
+          },
+          annotations: {
+            "apps.deploycat.io/source": source,
+            ...service.annotations,
           },
         },
         spec: {
@@ -133,12 +145,17 @@ export class Knative {
                   service.scaling.maxRequests &&
                   service.scaling.maxRequests.toString(),
                 "autoscaling.knative.dev/metric": "rps",
-              },
-              labels: {
-                "apps.deploycat.io/source": "manual",
+                "apps.deploycat.io/source": revisionSource,
               },
             },
             spec: {
+              imagePullSecrets:
+                (service.pullSecret && [
+                  {
+                    name: service.pullSecret,
+                  },
+                ]) ||
+                null,
               containerConcurrency: 0,
               containers: [
                 {
@@ -182,7 +199,12 @@ export class Knative {
     return body;
   }
 
-  async updateService(name: string, service: Service, namespace: string) {
+  async updateService(
+    name: string,
+    service: Service,
+    namespace: string,
+    revisionSource: string = "manual"
+  ) {
     const currentService = await this.getService(name, namespace);
 
     const { body } = await this.customObjectsApi.replaceNamespacedCustomObject(
@@ -217,12 +239,13 @@ export class Knative {
                   service.scaling.maxRequests &&
                   service.scaling.maxRequests.toString(),
                 "autoscaling.knative.dev/metric": "rps",
-              },
-              labels: {
-                "apps.deploycat.io/source": "manual",
+                "apps.deploycat.io/updated-at": new Date().toISOString(), // force new revision
+                "apps.deploycat.io/source": revisionSource,
               },
             },
             spec: {
+              imagePullSecrets:
+                currentService.raw.spec.template.spec.imagePullSecrets,
               containerConcurrency: 0,
               containers: [
                 {

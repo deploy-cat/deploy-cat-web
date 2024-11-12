@@ -6,6 +6,7 @@ import { isServer } from "solid-js/web";
 const configPath = process.cwd?.() && `${process.cwd()}/config.json`;
 
 const schemaConfig = z.object({
+  publicurl: z.string(),
   database: z.object({
     url: z.string(),
   }),
