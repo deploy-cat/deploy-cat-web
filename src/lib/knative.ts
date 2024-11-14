@@ -13,7 +13,7 @@ export type Service = {
     minScale: number;
     maxRequests: number;
   };
-  envVars: { [key: string]: string };
+  envVars: { [key: string]: string | any };
   raw?: any;
   annotations: { [key: string]: string };
 };
@@ -52,10 +52,9 @@ const toKnService = (service: any) =>
       ),
     },
     envVars: Object.fromEntries(
-      service.spec.template.spec.containers[0].env?.map(({ name, value }) => [
-        name,
-        value,
-      ]) ?? []
+      service.spec.template.spec.containers[0].env?.map(
+        ({ name, value, ...args }) => [name, value ?? args]
+      ) ?? []
     ),
     annotations: service.metadata.annotations,
     raw: service,
@@ -183,10 +182,17 @@ export class Knative {
                         `${service.resources.memoryLimit.toString()}Mi`,
                     },
                   },
-                  env: Object.entries(service.envVars).map(([name, value]) => ({
-                    name,
-                    value,
-                  })),
+                  env: Object.entries(service.envVars).map(([name, value]) =>
+                    typeof value === "string"
+                      ? {
+                          name,
+                          value,
+                        }
+                      : {
+                          name,
+                          ...value,
+                        }
+                  ),
                 },
               ],
               enableServiceLinks: false,
@@ -273,10 +279,17 @@ export class Knative {
                         `${service.resources.memoryLimit.toString()}Mi`,
                     },
                   },
-                  env: Object.entries(service.envVars).map(([name, value]) => ({
-                    name,
-                    value,
-                  })),
+                  env: Object.entries(service.envVars).map(([name, value]) =>
+                    typeof value === "string"
+                      ? {
+                          name,
+                          value,
+                        }
+                      : {
+                          name,
+                          ...value,
+                        }
+                  ),
                 },
               ],
               enableServiceLinks: false,
