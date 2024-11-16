@@ -6,7 +6,6 @@ import { schemaDatabse } from "~/lib/types";
 
 const createDatabaseFromForm = async (form: FormData) => {
   "use server";
-  console.log(form);
   try {
     const database = await schemaDatabse.parseAsync({
       name: form.get("name"),

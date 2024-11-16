@@ -6,20 +6,11 @@ import {
   type RouteDefinition,
 } from "@solidjs/router";
 import { getUser } from "~/lib/auth";
-import humanizeDuration from "humanize-duration";
 import { For } from "solid-js";
-import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 import { k8sCore } from "~/lib/k8s";
-
-// const getService = cache(async (app: string) => {
-//   "use server";
-//   const user = await getUser();
-//   return await knative.getService(app, user.name);
-// }, "service");
 
 const getDatabaseSecret = cache(async (db: string) => {
   "use server";
-  console.log(db);
   const user = await getUser();
   const secrets = await k8sCore.listNamespacedSecret(
     user.name,
@@ -38,7 +29,6 @@ const getDatabaseSecret = cache(async (db: string) => {
 
 export const route = {
   load: ({ params }) => {
-    // getService(params.app);
     getDatabaseSecret(params.name);
   },
 } satisfies RouteDefinition;

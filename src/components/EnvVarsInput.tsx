@@ -225,7 +225,7 @@ export const EnvVarsInput = ({ data }) => {
             tabindex={0}
             onClick={() => {
               const value = createSignal("");
-              const secretName = createSignal("");
+              const secretName = createSignal(dbSecrets()?.[0]?.name);
               const secretKey = createSignal("");
 
               createEffect(() => {
