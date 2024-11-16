@@ -6,6 +6,7 @@ import { cache, createAsync, A, type RouteDefinition } from "@solidjs/router";
 import { getUser } from "~/lib/auth";
 import { StatusBadge } from "~/components/cloud/service/StatusBadge";
 import { cnpg } from "~/lib/k8s";
+import humanizeDuration from "humanize-duration";
 
 const getDBs = cache(async () => {
   "use server";
@@ -68,11 +69,24 @@ export default () => {
                       />
                     </td>
                     <td>
-                      {new Date(
-                        db.status.conditions.find(
-                          (condition) => condition.type === "Ready"
-                        ).lastTransitionTime
-                      ).toLocaleString()}
+                      <div
+                        class="tooltip"
+                        data-tip={new Date(
+                          db.status.conditions.find(
+                            (condition) => condition.type === "Ready"
+                          )?.lastTransitionTime
+                        ).toLocaleString()}
+                      >
+                        {humanizeDuration(
+                          new Date(
+                            db.status.conditions.find(
+                              (condition) => condition.type === "Ready"
+                            )?.lastTransitionTime
+                          ).getTime() - Date.now(),
+                          { round: true, largest: 1 }
+                        )}{" "}
+                        ago
+                      </div>
                     </td>
                     <td class="hidden md:block">{db.spec.imageName}</td>
                     <td>
