@@ -34,7 +34,7 @@ const getPackages = cache(async () => {
     );
     return packagesWithVersions;
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }, "user-gh-packages");
 

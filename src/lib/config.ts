@@ -42,19 +42,19 @@ const schemaConfig = z.object({
 
 const parseEnv = ({ prefix = "", envs = process.env ?? {} } = {}) => {
   const parsed = {} as any;
+  const seq = (obj: any, arr: Array<string>, v: string | undefined) => {
+    if (typeof obj === "string") return;
+    if (arr.length > 1) {
+      const [pos] = arr.splice(0, 1);
+      if (!obj[pos]) obj[pos] = {};
+      seq(obj[pos], arr, v);
+    } else {
+      obj[arr[0]] = v;
+    }
+  };
   Object.entries(envs)
     .filter(([key]) => key?.startsWith(prefix.toUpperCase()))
     .forEach(([key, value]) => {
-      const seq = (obj: any, arr: Array<string>, v: string | undefined) => {
-        if (typeof obj === "string") return;
-        if (arr.length > 1) {
-          const [pos] = arr.splice(0, 1);
-          if (!obj[pos]) obj[pos] = {};
-          seq(obj[pos], arr, v);
-        } else {
-          obj[arr[0]] = v;
-        }
-      };
       const keyArr = key.split("_").map((e) => e.toLocaleLowerCase());
       seq(parsed, keyArr, value);
     });
