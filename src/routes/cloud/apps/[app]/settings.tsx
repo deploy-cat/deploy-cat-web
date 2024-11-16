@@ -1,6 +1,7 @@
 import { EnvVarsInput } from "~/components/EnvVarsInput";
 import { ScalingInput } from "~/components/ScalingInput";
 import { ResourcesInput } from "~/components/ResourcesInput";
+import { SourceInput } from "~/components/cloud/service/SourceInput";
 import { Service } from "~/components/cloud/service/Service";
 import { CreateServiceForm } from "~/components/cloud/CreateServiceForm";
 import { action, useSubmission } from "@solidjs/router";
@@ -36,11 +37,7 @@ const updateServiceFromForm = async (form: FormData) => {
     envVars: JSON.parse(form.get("env") as string) as { [key: string]: string },
   };
   const user = await getUser();
-  await knative.updateService(
-    form.get("name") as string,
-    service,
-    user.name
-  );
+  await knative.updateService(form.get("name") as string, service, user.name);
 };
 
 const updateServiceAction = action(updateServiceFromForm, "updateService");
@@ -75,22 +72,11 @@ export default () => {
                       type="hidden"
                       name="name"
                       required
-                      value={service()?.name}
+                      value={service().name}
                       class="input input-bordered w-full"
                     />
                   </label>
-                  <label class="form-control w-full">
-                    <div class="label">
-                      <span class="label-text">Image</span>
-                    </div>
-                    <input
-                      type="text"
-                      name="image"
-                      required
-                      value={service()?.image}
-                      class="input input-bordered w-full"
-                    />
-                  </label>
+                  <SourceInput service={service()} />
                   <label class="form-control w-full">
                     <div class="label">
                       <span class="label-text">Port</span>

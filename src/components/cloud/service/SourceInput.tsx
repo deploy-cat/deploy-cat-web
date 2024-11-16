@@ -2,6 +2,7 @@ import { createSignal, Show, For, createEffect, Accessor } from "solid-js";
 import { cache, createAsync } from "@solidjs/router";
 import { getAccount } from "~/lib/auth";
 import { Octokit } from "@octokit/rest";
+import type { Service } from "~/lib/knative";
 
 const getPackages = cache(async () => {
   "use server";
@@ -45,8 +46,10 @@ const sourceOptions = [
   { name: "GitHub Container Registry", slug: "ghcr" },
 ] as Array<{ name: string; slug: Source }>;
 
-export const SourceInput = ({ data }) => {
-  const [source, setSource] = createSignal("manual" as Source);
+export const SourceInput = ({ service }: { service?: Service }) => {
+  const [source, setSource] = createSignal(
+    service?.annotations["apps.deploycat.io/source"] ?? ("manual" as Source)
+  );
   const packages = createAsync(() => getPackages());
   type Package = typeof packages extends Accessor<(infer U)[] | undefined>
     ? U
@@ -54,7 +57,13 @@ export const SourceInput = ({ data }) => {
   const [pkg, setPkg] = createSignal(undefined as Package | undefined);
 
   createEffect(() => {
-    setPkg(packages()?.[0]);
+    setPkg(
+      packages()?.find(
+        (pkg) =>
+          pkg.id ===
+          Number(service?.annotations["apps.deploycat.io/gh-package"])
+      ) ?? packages()?.[0]
+    );
   });
 
   return (
@@ -87,6 +96,7 @@ export const SourceInput = ({ data }) => {
           <input
             type="text"
             name="image"
+            value={service?.image ?? ""}
             required
             placeholder="traefik/whoami"
             class="input input-bordered w-full"
@@ -113,7 +123,7 @@ export const SourceInput = ({ data }) => {
                   >
                     <For each={pkgs()}>
                       {(p) => (
-                        <option value={p.id}>
+                        <option selected={p.id === pkg()?.id} value={p.id}>
                           {p.name} ({p.repository?.full_name})
                         </option>
                       )}
@@ -124,7 +134,24 @@ export const SourceInput = ({ data }) => {
                     class="select select-bordered join-item"
                   >
                     <For each={pkg()?.tags}>
-                      {(t) => <option value={t}>{t}</option>}
+                      {(t) => (
+                        <option
+                          selected={
+                            Number(
+                              service?.annotations[
+                                "apps.deploycat.io/gh-package"
+                              ]
+                            ) === pkg()?.id &&
+                            t ===
+                              service?.annotations[
+                                "apps.deploycat.io/gh-package-tag"
+                              ]
+                          }
+                          value={t}
+                        >
+                          {t}
+                        </option>
+                      )}
                     </For>
                   </select>
                 </div>
